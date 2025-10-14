@@ -1,0 +1,106 @@
+name: Palette API CI
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+env:
+  SECRET_KEY: ${{ secrets.CI_DJANGO_KEY }}
+  ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0
+  PORT: 8000
+  DJANGO_SETTINGS_MODULE: config.settings.test
+  DEBUG: "True"
+  POSTGRES_HOST: localhost
+  POSTGRES_PORT: 5432
+  POSTGRES_DB: test_db
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD }}
+  KAKAO_REST_API_KEY: 'dummy-key-for-testing'
+  KAKAO_ADMIN_KEY: 'dummy-key-for-testing'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15.4
+        env:
+          POSTGRES_PORT: ${{ env.POSTGRES_PORT }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD }}
+        ports:
+        - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+        - "6379:6379"
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Cache uv dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/uv
+        key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-uv-
+
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "${HOME}/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies via uv
+      run: |
+        uv sync --frozen
+
+    - name: Configure environment variables
+      run: |
+        echo "DJANGO_SETTINGS_MODULE=config.settings.test" >> $GITHUB_ENV
+
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        for i in {1..10}; do
+          pg_isready -h localhost -p 5432 && break
+          sleep 5
+        done
+
+    - name: Install Redis CLI
+      run: sudo apt-get update && sudo apt-get install -y redis-tools
+
+    - name: Wait for Redis to be ready
+      run: |
+        for i in {1..10}; do
+          redis-cli -h localhost -p 6379 ping && break
+          sleep 2
+        done
+
+    - name: Run Django migrations
+      working-directory: webapp
+      run: uv run python manage.py migrate
+
+    - name: Run Django tests
+      working-directory: webapp
+      run: uv run python manage.py test

@@ -1,0 +1,58 @@
+name: Build and Push API Image (Alpha)
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_IMAGE_NAME }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-alpha-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-alpha-
+
+      - name: Build and Push Docker Image (Alpha Tag)
+        run: |
+          chmod +x ./environments/alpha/build.sh
+          ./environments/alpha/build.sh
+        env:
+          DOCKER_IMAGE: ${{env.DOCKER_USERNAME}}/${{env.DOCKER_IMAGE_NAME}}:alpha
+          PORT: 8080
+          DOCKER_BUILDKIT: 1
+          BUILDKIT_PROGRESS: plain
+          CACHE_FROM: /tmp/.buildx-cache
+
+      - name: Build and Push Docker Image (Commit Hash Tag)
+        run: |
+          chmod +x ./environments/alpha/build.sh
+          ./environments/alpha/build.sh
+        env:
+          DOCKER_IMAGE: ${{env.DOCKER_USERNAME}}/${{env.DOCKER_IMAGE_NAME}}:${{ github.sha }}
+          PORT: 8080
+          DOCKER_BUILDKIT: 1
+          BUILDKIT_PROGRESS: plain
+          CACHE_FROM: /tmp/.buildx-cache
