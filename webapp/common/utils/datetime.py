@@ -21,8 +21,8 @@ def get_day_range(date=None):
     date = get_today_date()
 
   return (
-    date.replace(hour=0, minute=0, second=0, microsecond=0),
-    date.replace(hour=23, minute=59, second=59, microsecond=999999),
+    timezone.datetime.combine(date, timezone.datetime.min.time()),
+    timezone.datetime.combine(date, timezone.datetime.max.time()),
   )
 
 def get_today_start():
