@@ -18,7 +18,7 @@ class BaseAPIException(APIException):
         self.message = message or error_code.message
         self.description = description or error_code.description
         self.details = details
-        self.http_status = http_status or error_code.http_status
+        self.http_status = http_status or error_code.status_code
 
         super().__init__(self.message)
 
