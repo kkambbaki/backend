@@ -134,7 +134,7 @@ DATABASES = {
         "USER": env("POSTGRES_USER"),
         "PASSWORD": env("POSTGRES_PASSWORD"),
         "HOST": env("POSTGRES_HOST"),
-        "PORT": env("POSTGRES_PORT"),
+        "PORT": int(env("POSTGRES_PORT", default="5432")),
         "TEST": {
             "NAME": env("TEST_POSTGRES_DB", default=""),
             "USER": env("TEST_POSTGRES_USER", default=""),
