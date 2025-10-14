@@ -7,7 +7,7 @@ class ValidationError(BaseAPIException):
 
     def __init__(self, message: str = None, details: dict = None):
             super().__init__(
-            error_code=CommonErrorCode.VAL_422,
-            message=message or CommonErrorCode.VAL_422.message,
+            error_code=CommonErrorCode.COMMON_422,
+            message=message or CommonErrorCode.COMMON_422.message,
             details=details,
         )

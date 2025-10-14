@@ -22,10 +22,9 @@ class ActiveUserPermission(permissions.BasePermission):
         # 사용자가 활성화되지 않은 경우
         if not request.user.is_active:
             raise ForbiddenError(
-                message="User not active",
+                message="계정이 비활성화 되었습니다. 관리자에게 문의해주세요.",
                 details={
                     "error_code": CommonErrorCode.COMMON_403.code,
-                    "message": "계정이 비활성화 되었습니다. 관리자에게 문의해주세요.",
                 },
             )
 
