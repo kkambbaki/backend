@@ -8,14 +8,14 @@ ENV PORT=${PORT} \
     UV_PYTHON_DOWNLOADS=never \
     UV_PROJECT_ENVIRONMENT=/app/.venv
 
-# --- Builder Stage ---
-FROM python-base AS builder
+FROM python-base AS base
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+    netcat-traditional \
     build-essential \
-    git \
     curl \
     wget \
+    git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -23,38 +23,29 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
 RUN git config --global url."https://".insteadOf git:// && \
     git config --global url."https://".insteadOf ssh://git@
 
-# Pin uv version for reproducible builds
+RUN mkdir -p /app
+
+# 임시 디렉토리 생성 (import_export용)
+RUN mkdir -p /app/tmp && chmod 777 /app/tmp
+
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-WORKDIR /app
-COPY pyproject.toml uv.lock ./
+FROM base AS builder
+
+COPY pyproject.toml uv.lock /_lock/
+
 RUN --mount=type=cache,target=/root/.cache \
+  cd /_lock/ && \
   uv sync --frozen --no-install-project
+
+WORKDIR /app/webapp
+
 COPY ./webapp /app/webapp
-
-# --- Final Stage ---
-FROM python-base
-
-RUN apt-get update -qq && apt-get install -y --no-install-recommends \
-    netcat-traditional \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-# Create a non-root user to run the application
-RUN groupadd --system app && useradd --system --gid app appuser
-# 임시 디렉토리 생성 (import_export용) - More secure permissions
-RUN mkdir -p /app/tmp && chown -R appuser:app /app/tmp && chmod 755 /app/tmp
-
-COPY --from=builder --chown=appuser:app /app /app
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-COPY --chown=appuser:app ./environments/alpha/entrypoint.sh /app/entrypoint.sh
+COPY ./environments/alpha/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
-
-USER appuser
 
 ENTRYPOINT [ "/app/entrypoint.sh" ]
 
