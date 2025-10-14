@@ -8,6 +8,7 @@ class CommonErrorCode(Enum):
     COMMON_401 = ("COMMON_401", "Unauthorized", "Authentication is required and has failed or has not yet been provided.", 401)
     COMMON_403 = ("COMMON_403", "Forbidden", "You do not have permission to access this resource.", 403)
     COMMON_404 = ("COMMON_404", "Not found", "The requested resource could not be found.", 404)
+    COMMON_405 = ("COMMON_405", "Method not allowed", "The request method is not allowed for the resource.", 405)
     COMMON_409 = ("COMMON_409", "Conflict", "The request could not be completed due to a conflict with the current state of the resource.", 409)
     COMMON_413 = ("COMMON_413", "Payload too large", "The request is larger than the server is willing or able to process.", 413)
     COMMON_422 = ("COMMON_422", "Unprocessable entity", "The request was well-formed but was unable to be processed.", 422)
