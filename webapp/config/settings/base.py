@@ -265,8 +265,7 @@ REST_FRAMEWORK = {
         "djangorestframework_camel_case.parser.CamelCaseJSONParser",
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
-        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "EXCEPTION_HANDLER": "common.exceptions.exception_handler.custom_exception_handler",
     "JSON_UNDERSCOREIZE": {
@@ -288,7 +287,10 @@ REST_FRAMEWORK = {
 REST_AUTH = {
     "USE_JWT": True,
     "JWT_AUTH_HTTPONLY": False,
+    "LOGIN_SERIALIZER": "dj_rest_auth.serializers.LoginSerializer",  # TODO: 이후 커스터마이징 필요할 수 있음
+    "REGISTER_SERIALIZER": "dj_rest_auth.registration.serializers.RegisterSerializer", # TODO: 이후 커스터마이징 필요할 수 있음
     "JWT_SERIALIZER": "api.v1.users.serializers.JWTSerializer",
+    "USER_DETAILS_SERIALIZER": "api.v1.users.serializers.UserDetailSerializer",
 }
 
 REST_USE_JWT = True
