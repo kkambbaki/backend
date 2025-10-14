@@ -1,0 +1,159 @@
+[project]
+name = "kkambbaki_backend"
+version = "0.1.0"
+description = "kkambbaki backend project"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "celery>=5.5.3",
+    "coverage>=7.10.7",
+    "dj-rest-auth>=7.0.1",
+    "django>=5.2.6",
+    "django-admin-object-actions>=0.1.11",
+    "django-allauth>=65.11.2",
+    "django-celery-beat>=2.8.1",
+    "django-celery-results>=2.6.0",
+    "django-cors-headers>=4.9.0",
+    "django-environ>=0.12.0",
+    "django-extensions>=4.1",
+    "django-filter>=25.1",
+    "django-guid>=3.5.2",
+    "django-import-export>=4.3.10",
+    "django-postgres-extra>=2.0.9",
+    "django-unfold>=0.67.0",
+    "djangorestframework>=3.16.1",
+    "djangorestframework-camel-case>=1.4.2",
+    "djangorestframework-simplejwt>=5.5.1",
+    "drf-extensions>=0.8.0",
+    "drf-spectacular>=0.28.0",
+    "drf-writable-nested>=0.7.2",
+    "factory-boy>=3.3.3",
+    "flower>=2.0.1",
+    "nplusone>=1.0.0",
+    "pillow>=11.3.0",
+    "psycopg[binary]>=3.2.10",
+    "redis>=6.4.0",
+    "requests>=2.32.5",
+    "uvicorn[standard]>=0.37.0",
+    "watchtower>=3.4.0",
+]
+
+[tool.ruff]
+# Target Python 3.12+
+target-version = "py312"
+line-length = 120
+indent-width = 2
+
+# Enable specific rule sets
+lint.select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "DJ",     # flake8-django
+    "UP",     # pyupgrade
+    "S",      # bandit
+    "T20",    # flake8-print
+    "PT",     # flake8-pytest-style
+    "Q",      # flake8-quotes
+    "RET",    # flake8-return
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "ARG",    # flake8-unused-arguments
+    "PIE",    # flake8-pie
+    "A",      # flake8-builtins
+    "COM",    # flake8-commas
+    "ISC",    # flake8-implicit-str-concat
+]
+
+# Exclude specific rules
+lint.ignore = [
+    "E203",   # whitespace before ':'
+    "E501",   # line too long (handled by formatter)
+    "S101",   # use of assert
+    "S105",   # hardcoded password
+    "S106",   # hardcoded password
+    "S107",   # hardcoded password
+    "DJ001",  # avoid using null=True on string-based fields
+]
+
+# Exclude directories
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "*/migrations/*",
+    "staticfiles",
+    "media",
+    "node_modules",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Allow certain rules in specific files
+"*/settings/*.py" = ["S105", "S106", "S107"]  # Allow hardcoded passwords in settings
+"*/migrations/*.py" = ["E501", "F401", "F841"]  # Ignore line length and imports in migrations
+"**/tests/**/*.py" = ["S101", "ARG001", "ARG002", "PT009"]  # Allow assert helpers in tests
+"manage.py" = ["T201"]  # Allow print in manage.py
+
+[tool.ruff.lint.isort]
+known-first-party = ["webapp", "config", "common"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.yapf]
+based_on_style = "pep8"
+indent_width = 2
+column_limit = 120
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["mypy_django_plugin.main"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_return_any = true
+warn_unreachable = true
+strict_optional = false
+check_untyped_defs = true
+disallow_untyped_defs = false
+disallow_any_generics = false
+
+# Django configuration
+[tool.django-stubs]
+django_settings_module = "config.settings.development"
+
+[tool.mypy_django_plugin]
+ignore_missing_model_attributes = true
+
+# Exclude certain files from mypy checking
+[[tool.mypy.overrides]]
+module = [
+    "*.migrations.*",
+    "manage",
+]
+ignore_errors = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "*/migrations/*"]
+skips = ["B101", "B601"]  # Skip assert_used and shell_injection_process_args
+
+[tool.coverage.run]
+source = ["webapp"]
+omit = [
+    "*/migrations/*",
+    "*/venv/*",
+    "*/env/*",
+    "manage.py",
+    "*/settings/*",
+    "*/tests/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+]
