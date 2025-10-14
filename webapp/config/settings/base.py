@@ -73,6 +73,7 @@ PACKAGE_APPS = [
     "allauth.account",
     "dj_rest_auth",
     "dj_rest_auth.registration",
+    "allauth.socialaccount",
     # Celery
     "django_celery_beat",
     "django_celery_results",
@@ -296,6 +297,7 @@ ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 인증 없이 로그인할 수 있다.
 ACCOUNT_USER_MODEL_USERNAME_FIELD = "username"
 
+SOCIALACCOUNT_PROVIDERS = {}
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=2),
