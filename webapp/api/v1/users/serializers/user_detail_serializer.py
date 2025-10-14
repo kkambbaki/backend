@@ -3,7 +3,7 @@ from dj_rest_auth.serializers import UserDetailsSerializer
 
 class UserDetailSerializer(UserDetailsSerializer):
     """
-    UserSerializer를 확장하여 소셜 계정 정보를 포함
+    UserDetailsSerializer를 custom User 모델에 맞게 재정의합니다.
     """
 
     class Meta(UserDetailsSerializer.Meta):
