@@ -21,8 +21,6 @@ env:
   POSTGRES_DB: test_db
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD }}
-  KAKAO_REST_API_KEY: 'dummy-key-for-testing'
-  KAKAO_ADMIN_KEY: 'dummy-key-for-testing'
 
 jobs:
   test:
