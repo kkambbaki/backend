@@ -230,6 +230,5 @@ class ChildModelTests(TestCase):
             parent=self.parent,
             name="기본값테스트",
             birth_year=2020,
-            gender=GenderChoice.NO_CHOICE,
         )
         self.assertEqual(child.gender, GenderChoice.NO_CHOICE)
