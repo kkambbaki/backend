@@ -10,6 +10,7 @@ class UserDetailSerializer(UserDetailsSerializer):
         fields = tuple(f for f in UserDetailsSerializer.Meta.fields if f != "pk") + (
             "id",
             "username",
+            "email",
         )
 
         read_only_fields = tuple(

@@ -287,15 +287,16 @@ REST_FRAMEWORK = {
 REST_AUTH = {
     "USE_JWT": True,
     "JWT_AUTH_HTTPONLY": False,
-    "LOGIN_SERIALIZER": "dj_rest_auth.serializers.LoginSerializer",  # TODO: 이후 커스터마이징 필요할 수 있음
-    "REGISTER_SERIALIZER": "dj_rest_auth.registration.serializers.RegisterSerializer", # TODO: 이후 커스터마이징 필요할 수 있음
+    "LOGIN_SERIALIZER": "api.v1.users.serializers.LoginSerializer",
+    "REGISTER_SERIALIZER": "api.v1.users.serializers.RegisterSerializer",
     "JWT_SERIALIZER": "api.v1.users.serializers.JWTSerializer",
     "USER_DETAILS_SERIALIZER": "api.v1.users.serializers.UserDetailSerializer",
 }
 
 REST_USE_JWT = True
 
-ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_LOGIN_METHODS = {"username"}
+ACCOUNT_SIGNUP_FIELDS = ["username*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 인증 없이 로그인할 수 있다.
 ACCOUNT_USER_MODEL_USERNAME_FIELD = "username"
 
