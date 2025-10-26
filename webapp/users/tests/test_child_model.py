@@ -205,7 +205,7 @@ class ChildModelTests(TestCase):
     def test_child_creation_without_required_fields(self):
         """필수 필드 없이 자녀 생성 시도"""
         # name이 빈 문자열인 경우 - 데이터베이스는 허용하지만 검증에서 실패해야 함
-        child = Child.objects.create(
+        child = Child(
             parent=self.parent,
             name="",
             birth_year=2020,
