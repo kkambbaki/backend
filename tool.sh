@@ -32,6 +32,12 @@ friendly_label() {
     test)
       echo "테스트 실행 (test)"
       ;;
+    custom_django_command)
+      echo "커스텀 Django 명령어"
+      ;;
+    all_django_commands)
+      echo "전체 Django 명령어"
+      ;;
     *)
       echo "$base ($base)"
       ;;
@@ -62,9 +68,12 @@ docker_args=(
 )
 
 show_menu() {
+  local script_count=${#scripts[@]}
+  local docker_count=${#docker_args[@]}
+
   echo
   echo "Available actions:"
-  if [ ${#scripts[@]} -gt 0 ]; then
+  if [ $script_count -gt 0 ]; then
     for idx in "${!scripts[@]}"; do
       printf "  %2d) %s\n" $((idx + 1)) "${script_labels[$idx]}"
     done
@@ -72,9 +81,9 @@ show_menu() {
     echo "  (No command scripts found in environments/development/commands)"
   fi
 
-  local offset=$(( ${#scripts[@]} + 1 ))
+  local docker_offset=$((script_count + 1))
   for idx in "${!docker_descriptions[@]}"; do
-    printf "  %2d) %s\n" $((offset + idx)) "${docker_descriptions[$idx]}"
+    printf "  %2d) %s\n" $((docker_offset + idx)) "${docker_descriptions[$idx]}"
   done
   echo "  q) Quit"
 }
