@@ -28,13 +28,21 @@ class ChildAdmin(ModelAdmin):
   )
   ordering = ("-created_at",)
 
-  fields = (
-    "parent",
-    "name",
-    "birth_year",
-    "gender",
-    "created_at",
-    "updated_at",
+  fieldsets = (
+    (None, {
+        "fields": (
+            "parent",
+            "name",
+            "birth_year",
+            "gender",
+        ),
+    }),
+    ("추가 정보", {
+        "fields": (
+            "created_at",
+            "updated_at",
+        ),
+    }),
   )
 
   actions = ()
