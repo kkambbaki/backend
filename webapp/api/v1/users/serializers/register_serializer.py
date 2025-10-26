@@ -45,13 +45,8 @@ class RegisterSerializer(DefaultRegisterSerializer):
         """
         username과 password로 유저를 생성합니다.
         """
-        user = User()
-        user.username = self.validated_data.get("username")
-        user.email = self.validated_data.get("email", "")
-
-        password = self.validated_data.get("password1")
-        if password:
-            user.set_password(password)
-
-        user.save()
-        return user
+        return User.objects.create_user(
+            username=self.validated_data.get("username"),
+            password=self.validated_data.get("password1"),
+            email=self.validated_data.get("email", ""),
+        )
