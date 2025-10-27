@@ -6,6 +6,7 @@ from django.contrib.auth.models import (
 from django.db import models
 
 from common.models import BaseModel, BaseModelManager, BaseModelQuerySet
+from users.validators import validate_username
 
 
 class UserQuerySet(BaseModelQuerySet):
@@ -20,23 +21,26 @@ class UserQuerySet(BaseModelQuerySet):
 
 
 class UserManager(BaseModelManager.from_queryset(UserQuerySet), BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
-        """주어진 이메일과 비밀번호로 유저를 생성하고 저장합니다."""
+    def create_user(self, username, password=None, **extra_fields):
+        """주어진 username과 비밀번호로 유저를 생성하고 저장합니다."""
 
-        if not email:
-            raise ValueError("Email is required")
+        if not username:
+            raise ValueError("Username is required")
 
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        email = extra_fields.get("email")
+        if email:
+            extra_fields["email"] = self.normalize_email(email)
+
+        user = self.model(username=username, **extra_fields)
         user.set_password(password)
 
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(self, username, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        return self.create_user(email, password, **extra_fields)
+        return self.create_user(username, password, **extra_fields)
 
 
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
@@ -47,10 +51,15 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username"]
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = []
 
-    email = models.EmailField(unique=True)
-    username = models.CharField(max_length=20)
+    username = models.CharField(
+        max_length=20,
+        unique=True,
+        validators=[validate_username],
+        help_text="4자리 이상의 영문과 숫자 조합",
+    )
+    email = models.EmailField(blank=True, null=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
