@@ -1,3 +1,4 @@
+from .email_update_serializer import EmailUpdateSerializer
 from .jwt_serializer import JWTSerializer
 from .login_serializer import LoginSerializer
 from .register_serializer import RegisterSerializer
@@ -8,4 +9,5 @@ __all__ = [
     "JWTSerializer",
     "LoginSerializer",
     "RegisterSerializer",
+    "EmailUpdateSerializer",
 ]
