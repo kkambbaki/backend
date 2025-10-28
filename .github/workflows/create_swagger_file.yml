@@ -80,20 +80,25 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@github.com"
+
+          # Always keep swagger-docs branch as a single-commit history
           if git ls-remote --exit-code origin swagger-docs; then
-            git fetch origin swagger-docs
-            git checkout swagger-docs
-          else
-            git checkout --orphan swagger-docs
+            git push origin --delete swagger-docs || true
           fi
-          git rm -rf .
-          mv webapp/swagger.yml .
+
+          # Preserve generated swagger before cleaning working tree
+          cp webapp/swagger.yml /tmp/swagger.yml
+
+          git checkout --orphan swagger-docs
+          git rm -rf . 2>/dev/null || true
+
+          mv /tmp/swagger.yml swagger.yml
           git add swagger.yml
           if git diff --cached --quiet; then
             echo "✅ No changes in Swagger YAML. Skipping commit & push."
             exit 0
           fi
-          git commit -m "Update Swagger YAML"
-          git push origin swagger-docs --force
+          git commit -m "Swagger YAML - $(date '+%Y-%m-%d %H:%M:%S')"
+          git push origin swagger-docs
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

@@ -87,27 +87,37 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@github.com"
 
-          # Create or reset coverage-docs branch to have only one commit
+          # Delete and recreate coverage-docs branch to ensure single commit
           if git ls-remote --exit-code origin coverage-docs; then
-            git fetch origin coverage-docs
-            git checkout coverage-docs
-            git reset --hard HEAD~$(git rev-list --count HEAD) 2>/dev/null || true
-          else
-            git checkout --orphan coverage-docs
+            git push origin --delete coverage-docs || true
           fi
+
+          # Create fresh orphan branch
+          git checkout --orphan coverage-docs
 
           # Remove all files and add new coverage report
           git rm -rf . 2>/dev/null || true
           cp -r webapp/htmlcov/* .
+
+          # Copy .gitignore from project root to prevent unwanted files from being committed
+          cp .gitignore . 2>/dev/null || true
+
+          # Remove unwanted files that might have been copied
+          find . -name "*.pyc" -delete
+          find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+          find . -name "*.pyo" -delete
+          find . -name "*.pyd" -delete
+          find . -name "*.so" -delete
+
           git add .
 
-          # Create single commit (or update if no changes)
+          # Create single commit (or skip if no changes)
           if git diff --cached --quiet; then
             echo "✅ No changes in coverage report. Skipping commit & push."
             exit 0
           fi
 
           git commit -m "Coverage Report - $(date '+%Y-%m-%d %H:%M:%S')"
-          git push origin coverage-docs --force
+          git push origin coverage-docs
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
