@@ -99,8 +99,47 @@ exclude = [
 "manage.py" = ["T201"]  # Allow print in manage.py
 
 [tool.ruff.lint.isort]
-known-first-party = ["webapp", "config", "common"]
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+profile = "django"
+known_django = ["django"]
+known_first_party = ["api", "common", "config", "file_managers", "matchmakings", "payments", "profiles", "saju", "users"]
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+line_length = 120
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip_gitignore = true
+
+[tool.black]
+line-length = 120
+target-version = ["py312"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.git
+  | \.venv
+  | __pycache__
+  | migrations
+  | staticfiles
+  | media
+  | node_modules
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip_gitignore = true
+known_django = "django"
+known_first_party = ["api", "common", "config", "file_managers", "matchmakings", "payments", "profiles", "saju", "users"]
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 
 [tool.yapf]
 based_on_style = "pep8"
