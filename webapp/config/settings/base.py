@@ -214,7 +214,8 @@ UNFOLD = {
 REDIS_HOST = env("REDIS_HOST", default="redis")
 REDIS_PORT = env("REDIS_PORT", default="6379")
 CELERY_BROKER_URL = env(
-    "CELERY_BROKER_URL", default=f"redis://{REDIS_HOST}:{REDIS_PORT}/0",
+    "CELERY_BROKER_URL",
+    default=f"redis://{REDIS_HOST}:{REDIS_PORT}/0",
 )
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="django-db")
 CELERY_RESULT_EXTENDED = True
@@ -264,9 +265,7 @@ REST_FRAMEWORK = {
         "djangorestframework_camel_case.parser.CamelCaseMultiPartParser",
         "djangorestframework_camel_case.parser.CamelCaseJSONParser",
     ),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "EXCEPTION_HANDLER": "common.exceptions.exception_handler.custom_exception_handler",
     "JSON_UNDERSCOREIZE": {
         "no_underscore_before_number": True,

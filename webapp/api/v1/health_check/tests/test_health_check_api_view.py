@@ -1,7 +1,9 @@
-from api.v1.health_check.views.health_check_api_view import HealthCheckAPIView
 from django.urls import reverse
+
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from api.v1.health_check.views.health_check_api_view import HealthCheckAPIView
 
 
 class HealthCheckAPIViewTests(APITestCase):

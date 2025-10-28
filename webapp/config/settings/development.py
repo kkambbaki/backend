@@ -1,6 +1,5 @@
 from .base import *  # noqa
 
-
 # ========== CORS / CSRF settings ==========
 
 CORS_ALLOWED_ORIGINS = [

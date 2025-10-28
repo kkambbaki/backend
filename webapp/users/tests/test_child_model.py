@@ -1,13 +1,15 @@
-import pytest
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import DataError, IntegrityError
 from django.test import TestCase
 
+import pytest
+
 from users.choices import GenderChoice
 from users.models import Child
 
 User = get_user_model()
+
 
 class ChildModelTests(TestCase):
     """Child 모델 테스트"""

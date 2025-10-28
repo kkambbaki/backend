@@ -2,36 +2,52 @@
 
 import django.core.validators
 import django.db.models.deletion
-import users.models.child
 from django.conf import settings
 from django.db import migrations, models
+
+import users.models.child
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0002_alter_user_email_alter_user_username'),
+        ("users", "0002_alter_user_email_alter_user_username"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Child',
+            name="Child",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(max_length=50, verbose_name='이름')),
-                ('birth_year', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1900)], verbose_name='생년')),
-                ('gender', models.CharField(choices=[('M', '남자'), ('F', '여자'), ('X', '선택 안함')], default='X', max_length=1)),
-                ('parent', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='child', to=settings.AUTH_USER_MODEL)),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("name", models.CharField(max_length=50, verbose_name="이름")),
+                (
+                    "birth_year",
+                    models.PositiveSmallIntegerField(
+                        validators=[django.core.validators.MinValueValidator(1900)], verbose_name="생년"
+                    ),
+                ),
+                (
+                    "gender",
+                    models.CharField(
+                        choices=[("M", "남자"), ("F", "여자"), ("X", "선택 안함")], default="X", max_length=1
+                    ),
+                ),
+                (
+                    "parent",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE, related_name="child", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '자녀',
-                'verbose_name_plural': '자녀',
-                'db_table': 'children',
+                "verbose_name": "자녀",
+                "verbose_name_plural": "자녀",
+                "db_table": "children",
             },
             managers=[
-                ('objects', users.models.child.ChildManager()),
+                ("objects", users.models.child.ChildManager()),
             ],
         ),
     ]

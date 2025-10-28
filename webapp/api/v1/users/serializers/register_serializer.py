@@ -1,6 +1,8 @@
-from dj_rest_auth.registration.serializers import RegisterSerializer as DefaultRegisterSerializer
 from django.contrib.auth import get_user_model
+
+from dj_rest_auth.registration.serializers import RegisterSerializer as DefaultRegisterSerializer
 from rest_framework import serializers
+
 from users.validators import validate_password, validate_username
 
 User = get_user_model()

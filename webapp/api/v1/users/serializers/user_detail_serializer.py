@@ -13,9 +13,7 @@ class UserDetailSerializer(UserDetailsSerializer):
             "email",
         )
 
-        read_only_fields = tuple(
-            f for f in UserDetailsSerializer.Meta.read_only_fields if f != "pk"
-        ) + (
+        read_only_fields = tuple(f for f in UserDetailsSerializer.Meta.read_only_fields if f != "pk") + (
             "id",
             "username",
         )

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.permissions import AllowAny

@@ -11,10 +11,12 @@ from .user import User
 class ChildManager(BaseModelManager):
     pass
 
+
 class Child(BaseModel):
     """
     자녀 모델
     """
+
     class Meta:
         db_table = "children"
         verbose_name = _("자녀")

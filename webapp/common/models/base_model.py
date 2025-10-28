@@ -1,4 +1,5 @@
 from django.db import models
+
 from psqlextra.manager import PostgresManager
 from psqlextra.query import PostgresQuerySet
 

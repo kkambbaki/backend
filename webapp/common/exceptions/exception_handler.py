@@ -1,14 +1,9 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import IntegrityError as DjangoIntegrityError
-from rest_framework.exceptions import (
-    NotFound as DRFNotFound,
-)
-from rest_framework.exceptions import (
-    PermissionDenied as DRFPermissionDenied,
-)
-from rest_framework.exceptions import (
-    ValidationError as DRFValidationError,
-)
+
+from rest_framework.exceptions import NotFound as DRFNotFound
+from rest_framework.exceptions import PermissionDenied as DRFPermissionDenied
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.views import exception_handler
 
 from .base_api_exception import BaseAPIException
