@@ -18,6 +18,7 @@ class ReportPinAdmin(ModelAdmin):
     )
     search_fields = ("user__email",)
     readonly_fields = (
+        "pin_hash",
         "created_at",
         "updated_at",
     )
