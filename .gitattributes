@@ -1,0 +1,40 @@
+# 텍스트 파일은 자동으로 감지하고 저장소에는 LF로 저장
+* text=auto
+
+# Python 파일은 저장소에 LF로 저장하되, 체크아웃 시 플랫폼에 맞게 변환
+*.py text eol=lf
+*.pyw text eol=lf
+
+# 설정 파일들도 LF로 통일
+*.toml text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.sh text eol=lf
+
+# Windows 배치 파일은 CRLF 사용
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Docker 관련
+Dockerfile text eol=lf
+*.dockerfile text eol=lf
+docker-compose*.yml text eol=lf
+docker-compose*.yaml text eol=lf
+
+# Git 설정 파일
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# 바이너리 파일은 그대로 유지
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
