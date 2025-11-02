@@ -16,10 +16,10 @@ class ReportPin(BaseModel):
         verbose_name = "Report Pin"
         verbose_name_plural = "Report Pins"
 
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         "users.User",
         on_delete=models.CASCADE,
-        related_name="report_pins",
+        related_name="report_pin",
         verbose_name="User",
     )
 
