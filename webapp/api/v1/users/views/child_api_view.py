@@ -42,7 +42,7 @@ class ChildAPIView(BaseAPIView):
             )
         },
     )
-    def patch(self, request):
+    def post(self, request):
         child = self.get_object()
 
         serializer = self.get_serializer(child, data=request.data, partial=True)
