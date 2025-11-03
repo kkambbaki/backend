@@ -11,3 +11,15 @@ class BBStarFinishSerializer(serializers.Serializer):
     wrong_count = serializers.IntegerField(required=False, default=0)
     reaction_ms_avg = serializers.IntegerField(required=False, allow_null=True)
     success_rate = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True)
+
+
+class KidsTrafficStartSerializer(serializers.Serializer):
+    child_id = serializers.IntegerField(required=True)
+
+
+class KidsTrafficFinishSerializer(serializers.Serializer):
+    session_id = serializers.UUIDField(required=True)
+    score = serializers.IntegerField(required=True)
+    wrong_count = serializers.IntegerField(required=False, default=0)
+    reaction_ms_avg = serializers.IntegerField(required=False, allow_null=True)
+    success_rate = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True)
