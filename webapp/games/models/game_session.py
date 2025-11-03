@@ -93,6 +93,26 @@ class GameSession(PostgresModel):
         blank=False,
         verbose_name=_("시작 시각"),
     )
+    ended_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        verbose_name=_("종료 시각"),
+    )
+    meta = models.JSONField(
+        blank=True,
+        default=dict,
+        null=True,
+        verbose_name=_("메타데이터"),
+        help_text="라운드 진행상태 등 임시 값",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_("생성 시각"),
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_("수정 시각"),
+    )
 
     def __str__(self):
         return f"{self.child.name} - {self.game.name} (라운드 {self.round_current})"

@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
@@ -12,6 +13,7 @@ from common.exceptions.not_found_error import NotFoundError
 from common.exceptions.validation_error import ValidationError
 from common.permissions.active_user_permission import ActiveUserPermission
 from common.views import BaseAPIView
+from users.models.child import Child
 
 
 class BBStarStartAPIView(BaseAPIView):
@@ -26,8 +28,6 @@ class BBStarStartAPIView(BaseAPIView):
             game = Game.objects.by_code(GameCodeChoice.BB_STAR).get()
         except Game.DoesNotExist:
             raise NotFoundError(message="게임( BB_STAR, 뿅뿅 아기별 게임 )이 활성화되어 있지 않습니다.")
-
-        from users.models.child import Child
 
         child = get_object_or_404(Child, id=child_id)
 
@@ -58,26 +58,32 @@ class BBStarFinishAPIView(BaseAPIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        try:
-            session = GameSession.objects.get(id=data["session_id"], parent=request.user)
-        except GameSession.DoesNotExist:
-            raise NotFoundError(message="세션을 찾을 수 없거나 접근 권한이 없습니다.")
+        with transaction.atomic():
+            try:
+                session = (
+                    GameSession.objects.select_related("child", "game")
+                    .select_for_update()
+                    .get(id=data["session_id"], parent=request.user)
+                )
+            except GameSession.DoesNotExist:
+                raise NotFoundError(message="세션을 찾을 수 없거나 접근 권한이 없습니다.")
 
-        if session.status == GameSessionStatusChoice.COMPLETED:
-            raise ValidationError(message="이미 완료된 세션입니다.")
+            if session.status == GameSessionStatusChoice.COMPLETED:
+                raise ValidationError(message="이미 완료된 세션입니다.")
 
-        session.status = GameSessionStatusChoice.COMPLETED
-        session.save(update_fields=["status"])
+            session.status = GameSessionStatusChoice.COMPLETED
+            session.ended_at = timezone.now()
+            session.save(update_fields=["status", "ended_at"])
 
-        result = GameResult.objects.create(
-            session=session,
-            child=session.child,
-            game=session.game,
-            score=data["score"],
-            wrong_count=data.get("wrong_count", 0),
-            reaction_ms_avg=data.get("reaction_ms_avg"),
-            success_rate=data.get("success_rate"),
-        )
+            result = GameResult.objects.create(
+                session=session,
+                child=session.child,
+                game=session.game,
+                score=data["score"],
+                wrong_count=data.get("wrong_count", 0),
+                reaction_ms_avg=data.get("reaction_ms_avg"),
+                success_rate=data.get("success_rate"),
+            )
 
         return Response(
             {

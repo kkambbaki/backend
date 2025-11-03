@@ -88,6 +88,21 @@ class GameResult(PostgresModel):
         verbose_name=_("성공률(%)"),
         help_text="성공률 (0.00 ~ 100.00)",
     )
+    meta = models.JSONField(
+        blank=True,
+        default=dict,
+        null=True,
+        verbose_name=_("메타데이터"),
+        help_text="라운드별 상세 데이터",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_("기록 시각"),
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_("수정 시각"),
+    )
 
     def __str__(self):
         return f"{self.child.name} - {self.game.name} (점수: {self.score})"
