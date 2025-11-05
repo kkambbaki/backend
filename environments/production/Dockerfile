@@ -12,16 +12,9 @@ FROM python-base AS base
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     netcat-traditional \
-    build-essential \
     curl \
-    wget \
-    git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# Git configuration
-RUN git config --global url."https://".insteadOf git:// && \
-    git config --global url."https://".insteadOf ssh://git@
 
 RUN mkdir -p /app
 
@@ -32,18 +25,36 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 FROM base AS builder
 
+# Build dependencies only in builder stage
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+    build-essential \
+    wget \
+    git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Git configuration
+RUN git config --global url."https://".insteadOf git:// && \
+    git config --global url."https://".insteadOf ssh://git@
+
 COPY pyproject.toml uv.lock /_lock/
 
 RUN --mount=type=cache,target=/root/.cache \
   cd /_lock/ && \
   uv sync --frozen --no-install-project
 
-# Install Playwright browsers (without cache mount to persist in image)
-RUN /app/.venv/bin/playwright install --with-deps chromium
+FROM base AS runtime
+
+# Copy virtual environment from builder
+COPY --from=builder /app/.venv /app/.venv
 
 WORKDIR /app/webapp
 
 COPY ./webapp /app/webapp
+
+# Clean up Python bytecode and cache
+RUN find /app -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
+    find /app -type f -name "*.pyc" -delete 2>/dev/null || true
 
 ENV PATH="/app/.venv/bin:$PATH"
 
