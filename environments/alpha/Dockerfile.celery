@@ -54,7 +54,7 @@ COPY ./webapp /app/webapp
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-COPY ./environments/alpha/entrypoint.sh /app/entrypoint.sh
+COPY ./environments/alpha/entrypoint-celery.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 ENTRYPOINT [ "/app/entrypoint.sh" ]
