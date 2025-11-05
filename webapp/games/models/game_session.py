@@ -5,9 +5,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from games.choices import GameSessionStatusChoice
-from psqlextra.models import PostgresModel
 
-from common.models import BaseModelManager
+from common.models import BaseModel, BaseModelManager
 
 User = get_user_model()
 
@@ -23,7 +22,7 @@ class GameSessionManager(BaseModelManager):
         return self.filter(child=child)
 
 
-class GameSession(PostgresModel):
+class GameSession(BaseModel):
     """
     게임 세션 모델
     게임 진행 상황을 추적
@@ -104,14 +103,6 @@ class GameSession(PostgresModel):
         null=True,
         verbose_name=_("메타데이터"),
         help_text="라운드 진행상태 등 임시 값",
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_("생성 시각"),
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name=_("수정 시각"),
     )
 
     def __str__(self):

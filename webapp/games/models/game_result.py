@@ -5,9 +5,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from psqlextra.models import PostgresModel
-
-from common.models import BaseModelManager
+from common.models import BaseModel, BaseModelManager
 
 User = get_user_model()
 
@@ -20,7 +18,7 @@ class GameResultManager(BaseModelManager):
         return self.filter(game=game)
 
 
-class GameResult(PostgresModel):
+class GameResult(BaseModel):
     """
     게임 결과 모델
     완료된 게임 세션의 최종 결과를 저장
@@ -94,14 +92,6 @@ class GameResult(PostgresModel):
         null=True,
         verbose_name=_("메타데이터"),
         help_text="라운드별 상세 데이터",
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_("기록 시각"),
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name=_("수정 시각"),
     )
 
     def __str__(self):
