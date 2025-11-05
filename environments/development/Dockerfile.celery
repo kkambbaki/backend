@@ -43,9 +43,6 @@ RUN git config --global url."https://".insteadOf git:// && \
 
 RUN mkdir -p /app
 
-# 임시 디렉토리 생성 (import_export용)
-RUN mkdir -p /app/tmp && chmod 777 /app/tmp
-
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 FROM base AS builder
@@ -65,7 +62,7 @@ COPY ./webapp /app/webapp
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-COPY ./environments/alpha/entrypoint.sh /app/entrypoint.sh
+COPY ./environments/development/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 ENTRYPOINT [ "/app/entrypoint.sh" ]

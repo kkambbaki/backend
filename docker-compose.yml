@@ -1,7 +1,7 @@
 x-celery-base: &celery-base
   build:
     context: .
-    dockerfile: ./environments/development/Dockerfile
+    dockerfile: ./environments/development/Dockerfile.celery
   restart: always
   env_file:
     - .env

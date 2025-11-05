@@ -56,3 +56,35 @@ jobs:
           DOCKER_BUILDKIT: 1
           BUILDKIT_PROGRESS: plain
           CACHE_FROM: /tmp/.buildx-cache
+
+      - name: Cache Docker layers (Celery)
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache-celery
+          key: ${{ runner.os }}-buildx-alpha-celery-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-alpha-celery-
+
+      - name: Build and Push Docker Image (Alpha-Celery Tag)
+        run: |
+          chmod +x ./environments/alpha/build.sh
+          ./environments/alpha/build.sh
+        env:
+          DOCKER_IMAGE: ${{env.DOCKER_USERNAME}}/${{env.DOCKER_IMAGE_NAME}}:alpha-celery
+          PORT: 8080
+          DOCKER_BUILDKIT: 1
+          BUILDKIT_PROGRESS: plain
+          DOCKERFILE: ./environments/alpha/Dockerfile.celery
+          CACHE_FROM: /tmp/.buildx-cache-celery
+
+      - name: Build and Push Docker Image (Commit Hash Tag - Celery)
+        run: |
+          chmod +x ./environments/alpha/build.sh
+          ./environments/alpha/build.sh
+        env:
+          DOCKER_IMAGE: ${{env.DOCKER_USERNAME}}/${{env.DOCKER_IMAGE_NAME}}:${{ github.sha }}-celery
+          PORT: 8080
+          DOCKER_BUILDKIT: 1
+          BUILDKIT_PROGRESS: plain
+          DOCKERFILE: ./environments/alpha/Dockerfile.celery
+          CACHE_FROM: /tmp/.buildx-cache-celery
