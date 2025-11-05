@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
@@ -30,10 +31,9 @@ class BBStarStartAPIView(BaseAPIView):
         child_id = serializer.validated_data["child_id"]
 
         try:
-            game = Game.objects.by_code(GameCodeChoice.BB_STAR).get()
-        except Game.DoesNotExist:
+            game = get_object_or_404(Game.objects.by_code(GameCodeChoice.BB_STAR))
+        except Http404:
             raise NotFoundError(message="게임( BB_STAR, 뿅뿅 아기별 게임 )이 활성화되어 있지 않습니다.")
-
         child = get_object_or_404(Child, id=child_id)
 
         session = GameSession.objects.create(
@@ -112,10 +112,9 @@ class KidsTrafficStartAPIView(BaseAPIView):
         child_id = serializer.validated_data["child_id"]
 
         try:
-            game = Game.objects.by_code(GameCodeChoice.KIDS_TRAFFIC).get()
-        except Game.DoesNotExist:
+            game = get_object_or_404(Game.objects.by_code(GameCodeChoice.KIDS_TRAFFIC))
+        except Http404:
             raise NotFoundError(message="게임( KIDS_TRAFFIC, 꼬마 교통지킴이 )이 활성화되어 있지 않습니다.")
-
         child = get_object_or_404(Child, id=child_id)
 
         session = GameSession.objects.create(
