@@ -22,7 +22,7 @@ from users.models.child import Child
 
 
 class BBStarStartAPIView(BaseAPIView):
-    permission_classes = BaseAPIView.permission_classes + [ActiveUserPermission]
+    permission_classes = [ActiveUserPermission]
 
     def post(self, request):
         serializer = BBStarStartSerializer(data=request.data)
@@ -56,7 +56,7 @@ class BBStarStartAPIView(BaseAPIView):
 
 
 class BBStarFinishAPIView(BaseAPIView):
-    permission_classes = BaseAPIView.permission_classes + [ActiveUserPermission]
+    permission_classes = [ActiveUserPermission]
 
     def post(self, request):
         serializer = BBStarFinishSerializer(data=request.data)
@@ -104,7 +104,7 @@ class BBStarFinishAPIView(BaseAPIView):
 
 
 class KidsTrafficStartAPIView(BaseAPIView):
-    permission_classes = BaseAPIView.permission_classes + [ActiveUserPermission]
+    permission_classes = [ActiveUserPermission]
 
     def post(self, request):
         serializer = KidsTrafficStartSerializer(data=request.data)
@@ -138,7 +138,7 @@ class KidsTrafficStartAPIView(BaseAPIView):
 
 
 class KidsTrafficFinishAPIView(BaseAPIView):
-    permission_classes = BaseAPIView.permission_classes + [ActiveUserPermission]
+    permission_classes = [ActiveUserPermission]
 
     def post(self, request):
         serializer = KidsTrafficFinishSerializer(data=request.data)
