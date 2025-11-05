@@ -83,6 +83,7 @@ CUSTOM_APPS = [
     "api",
     "users",
     "reports",
+    "games",
 ]
 
 INSTALLED_APPS = ADMIN_APPS + DJANGO_APPS + PACKAGE_APPS + CUSTOM_APPS
