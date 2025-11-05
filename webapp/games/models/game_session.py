@@ -75,13 +75,13 @@ class GameSession(PostgresModel):
         blank=False,
         verbose_name=_("상태"),
     )
-    round_current = models.SmallIntegerField(
+    current_round = models.SmallIntegerField(
         default=1,
         null=False,
         blank=False,
         verbose_name=_("현재 라운드"),
     )
-    score_current = models.IntegerField(
+    current_score = models.IntegerField(
         default=0,
         null=False,
         blank=False,
@@ -115,4 +115,4 @@ class GameSession(PostgresModel):
     )
 
     def __str__(self):
-        return f"{self.child.name} - {self.game.name} (라운드 {self.round_current})"
+        return f"{self.child.name} - {self.game.name} (라운드 {self.current_round})"
