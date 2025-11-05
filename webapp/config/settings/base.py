@@ -82,6 +82,7 @@ PACKAGE_APPS = [
 CUSTOM_APPS = [
     "api",
     "users",
+    "reports",
     "games",
 ]
 
