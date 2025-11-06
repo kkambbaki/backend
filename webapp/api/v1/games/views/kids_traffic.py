@@ -81,8 +81,9 @@ class KidsTrafficFinishAPIView(BaseAPIView):
                 game=session.game,
                 score=data["score"],
                 wrong_count=data.get("wrong_count", 0),
-                reaction_ms_avg=data.get("reaction_ms_avg"),
-                success_rate=data.get("success_rate"),
+                reaction_ms_sum=data.get("reaction_ms_sum"),
+                round_count=data.get("round_count"),
+                success_count=data.get("success_count"),
             )
 
         return Response(
@@ -91,8 +92,9 @@ class KidsTrafficFinishAPIView(BaseAPIView):
                 "game_code": session.game.code,
                 "score": result.score,
                 "wrong_count": result.wrong_count,
-                "reaction_ms_avg": result.reaction_ms_avg,
-                "success_rate": str(result.success_rate) if result.success_rate is not None else None,
+                "reaction_ms_sum": result.reaction_ms_sum,
+                "round_count": result.round_count,
+                "success_count": result.success_count,
             },
             status=status.HTTP_200_OK,
         )

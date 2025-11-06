@@ -1,7 +1,4 @@
-from decimal import Decimal
-
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -71,20 +68,23 @@ class GameResult(BaseModel):
         blank=True,
         verbose_name=_("오답 수"),
     )
-    reaction_ms_avg = models.IntegerField(
+    reaction_ms_sum = models.IntegerField(
         null=True,
         blank=True,
-        verbose_name=_("평균 반응(ms)"),
-        help_text="평균 반응 시간",
+        verbose_name=_("반응 시간 합계(ms)"),
+        help_text="모든 반응 시간의 합계",
     )
-    success_rate = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    round_count = models.IntegerField(
         null=True,
         blank=True,
-        validators=[MinValueValidator(Decimal("0.00")), MaxValueValidator(Decimal("100.00"))],
-        verbose_name=_("성공률(%)"),
-        help_text="성공률 (0.00 ~ 100.00)",
+        verbose_name=_("라운드 수"),
+        help_text="완료한 라운드 수",
+    )
+    success_count = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_("성공 횟수"),
+        help_text="성공한 횟수",
     )
     meta = models.JSONField(
         blank=True,
