@@ -139,7 +139,7 @@ class GameResultAdmin(ModelAdmin):
 
     def reaction_time_avg(self, obj):
         """평균 반응 시간 표시"""
-        if obj.reaction_ms_sum and obj.round_count and obj.round_count > 0:
+        if obj.reaction_ms_sum is not None and obj.round_count is not None and obj.round_count > 0:
             avg_ms = obj.reaction_ms_sum / obj.round_count
             return format_html(
                 "<span>{} ms</span>",
