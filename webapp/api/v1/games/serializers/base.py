@@ -52,16 +52,43 @@ class GameFinishSerializer(serializers.Serializer):
 
     """
 
-    session_id = serializers.UUIDField(required=True)
-    score = serializers.IntegerField(required=True)
-    wrong_count = serializers.IntegerField(required=False, default=0)
-    reaction_ms_sum = serializers.IntegerField(required=False, allow_null=True)
-    round_count = serializers.IntegerField(required=False, allow_null=True)
-    success_count = serializers.IntegerField(required=False, allow_null=True)
+    session_id = serializers.UUIDField(
+        required=True,
+        help_text="게임 세션 식별자 (UUID)",
+    )
+    score = serializers.IntegerField(
+        required=True,
+        help_text="게임 전체 총 점수",
+    )
+    wrong_count = serializers.IntegerField(
+        required=False,
+        default=0,
+        help_text="게임 전체 틀린 개수",
+    )
+    reaction_ms_sum = serializers.IntegerField(
+        required=False,
+        allow_null=True,
+        help_text="게임 전체 반응시간 합계 (밀리초)",
+    )
+    round_count = serializers.IntegerField(
+        required=False,
+        allow_null=True,
+        help_text="게임 전체 라운드 수",
+    )
+    success_count = serializers.IntegerField(
+        required=False,
+        allow_null=True,
+        help_text="게임 전체 성공한 라운드 수",
+    )
     meta = serializers.JSONField(
         required=False,
         allow_null=True,
         default=dict,
+        help_text=(
+            "라운드별 상세 데이터. 구조: "
+            "{'round_details': [{'round_number': 1, 'score': 10, 'wrong_count': 1, "
+            "'reaction_time_ms_sum': 1500, 'is_success': True, 'time_limit_exceeded': False}, ...]}"
+        ),
     )
 
 
