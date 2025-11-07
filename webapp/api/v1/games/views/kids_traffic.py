@@ -3,13 +3,19 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from games.choices.game_code_choice import GameCodeChoice
 from games.choices.game_session_status_choice import GameSessionStatusChoice
 from games.models import Game, GameResult, GameSession
 from rest_framework import status
 from rest_framework.response import Response
 
-from api.v1.games.serializers import KidsTrafficFinishSerializer, KidsTrafficStartSerializer
+from api.v1.games.serializers import (
+    GameFinishResponseSerializer,
+    GameStartResponseSerializer,
+    KidsTrafficFinishSerializer,
+    KidsTrafficStartSerializer,
+)
 from common.exceptions.not_found_error import NotFoundError
 from common.exceptions.validation_error import ValidationError
 from common.permissions.active_user_permission import ActiveUserPermission
@@ -17,9 +23,23 @@ from common.views import BaseAPIView
 from users.models.child import Child
 
 
+@extend_schema(tags=["게임 - 꼬마 교통지킴이"])
 class KidsTrafficStartAPIView(BaseAPIView):
     permission_classes = [ActiveUserPermission]
 
+    @extend_schema(
+        operation_id="start_kids_traffic_game",
+        summary="꼬마 교통지킴이 게임 시작",
+        description="아이를 위한 꼬마 교통지킴이 게임 세션을 시작합니다.",
+        request=KidsTrafficStartSerializer,
+        responses={
+            201: OpenApiResponse(
+                response=GameStartResponseSerializer,
+                description="게임 세션 시작 성공",
+            ),
+            404: OpenApiResponse(description="게임 또는 아이를 찾을 수 없음"),
+        },
+    )
     def post(self, request):
         serializer = KidsTrafficStartSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -50,9 +70,24 @@ class KidsTrafficStartAPIView(BaseAPIView):
         )
 
 
+@extend_schema(tags=["게임 - 꼬마 교통지킴이"])
 class KidsTrafficFinishAPIView(BaseAPIView):
     permission_classes = [ActiveUserPermission]
 
+    @extend_schema(
+        operation_id="finish_kids_traffic_game",
+        summary="꼬마 교통지킴이 게임 종료",
+        description="꼬마 교통지킴이 게임 세션을 종료하고 결과를 저장합니다.",
+        request=KidsTrafficFinishSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=GameFinishResponseSerializer,
+                description="게임 세션 종료 성공",
+            ),
+            404: OpenApiResponse(description="세션을 찾을 수 없거나 접근 권한이 없음"),
+            400: OpenApiResponse(description="이미 완료된 세션"),
+        },
+    )
     def post(self, request):
         serializer = KidsTrafficFinishSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

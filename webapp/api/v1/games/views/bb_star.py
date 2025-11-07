@@ -3,13 +3,19 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from games.choices.game_code_choice import GameCodeChoice
 from games.choices.game_session_status_choice import GameSessionStatusChoice
 from games.models import Game, GameResult, GameSession
 from rest_framework import status
 from rest_framework.response import Response
 
-from api.v1.games.serializers import BBStarFinishSerializer, BBStarStartSerializer
+from api.v1.games.serializers import (
+    BBStarFinishSerializer,
+    BBStarStartSerializer,
+    GameFinishResponseSerializer,
+    GameStartResponseSerializer,
+)
 from common.exceptions.not_found_error import NotFoundError
 from common.exceptions.validation_error import ValidationError
 from common.permissions.active_user_permission import ActiveUserPermission
@@ -17,9 +23,23 @@ from common.views import BaseAPIView
 from users.models.child import Child
 
 
+@extend_schema(tags=["게임 - 뿅뿅 아기별"])
 class BBStarStartAPIView(BaseAPIView):
     permission_classes = [ActiveUserPermission]
 
+    @extend_schema(
+        operation_id="start_bb_star_game",
+        summary="뿅뿅 아기별 게임 시작",
+        description="아이를 위한 뿅뿅 아기별 게임 세션을 시작합니다.",
+        request=BBStarStartSerializer,
+        responses={
+            201: OpenApiResponse(
+                response=GameStartResponseSerializer,
+                description="게임 세션 시작 성공",
+            ),
+            404: OpenApiResponse(description="게임 또는 아이를 찾을 수 없음"),
+        },
+    )
     def post(self, request):
         serializer = BBStarStartSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -50,9 +70,24 @@ class BBStarStartAPIView(BaseAPIView):
         )
 
 
+@extend_schema(tags=["게임 - 뿅뿅 아기별"])
 class BBStarFinishAPIView(BaseAPIView):
     permission_classes = [ActiveUserPermission]
 
+    @extend_schema(
+        operation_id="finish_bb_star_game",
+        summary="뿅뿅 아기별 게임 종료",
+        description="뿅뿅 아기별 게임 세션을 종료하고 결과를 저장합니다.",
+        request=BBStarFinishSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=GameFinishResponseSerializer,
+                description="게임 세션 종료 성공",
+            ),
+            404: OpenApiResponse(description="세션을 찾을 수 없거나 접근 권한이 없음"),
+            400: OpenApiResponse(description="이미 완료된 세션"),
+        },
+    )
     def post(self, request):
         serializer = BBStarFinishSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
