@@ -5,7 +5,10 @@ PDF 리포트를 이메일로 전송하는 서비스입니다.
 """
 
 import logging
+import os
 from typing import Optional
+
+from django.conf import settings
 
 from reports.services.base_pdf_generator import BasePDFGenerator
 from reports.services.email import FileAttachmentEmailService
@@ -61,53 +64,70 @@ class ReportEmailService(FileAttachmentEmailService):
 <html>
 <head>
     <meta charset="UTF-8">
-    <style>
-        body {
-            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            background-color: #FFE3A7;
-            color: #000000;
-            padding: 20px;
-            text-align: center;
-            border-radius: 5px 5px 0 0;
-        }
-        .content {
-            background-color: #FFF4DF;
-            padding: 30px;
-            border: 1px solid #ddd;
-            border-radius: 0 0 5px 5px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #888;
-            font-size: 12px;
-        }
-    </style>
 </head>
-<body>
-    <div class="header">
-        <h1>리포트가 도착했습니다</h1>
-    </div>
-    <div class="content">
-        <p>안녕하세요,</p>
-        <p>집중력 분석 리포트가 도착했습니다.</p>
-        <p>첨부된 PDF 파일을 확인해 주세요.</p>
-        <p>감사합니다.</p>
-    </div>
-    <div class="footer">
-        <p>@깜빡이팀</p>
-    </div>
+<body style="font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #ffffff;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff;">
+        <tr>
+            <td align="center" style="padding: 20px;">
+                <table width="800" border="0" cellspacing="0" cellpadding="0" style="max-width: 800px;">
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background-color: #FFE3A7; padding: 20px; border-radius: 5px 5px 0 0;">
+                            <img src="cid:logo" alt="깜빡이 로고" style="max-width: 200px; height: auto; display: block; margin: 0 auto;">
+                        </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                        <td align="center" style="background-color: #FFF4DF; padding: 30px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; border-radius: 0 0 5px 5px; font-size: 1.5em;">
+                            <p style="margin: 0 0 15px 0;">안녕하세요,</p>
+                            <p style="margin: 0 0 15px 0;">집중력 분석 리포트가 도착했습니다.</p>
+                            <p style="margin: 0 0 15px 0;">첨부된 PDF 파일을 확인해 주세요.</p>
+                            <p style="margin: 0;">감사합니다.</p>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="padding-top: 20px; color: #888; font-size: 12px;">
+                            <p style="margin: 0;">@깜빡이팀</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
 """
         return html_body
+
+    def get_inline_images(self, **kwargs) -> list[tuple[str, bytes, str, str]]:
+        """
+        HTML 본문에 인라인으로 포함할 이미지 목록을 반환합니다.
+
+        Returns:
+            list[tuple[str, bytes, str, str]]: 인라인 이미지 목록
+            각 튜플은 (Content-ID, 파일 내용, MIME 타입, 파일명) 형식
+        """
+        inline_images = []
+
+        # 로고 이미지 경로
+        logo_path = os.path.join(settings.STATIC_ROOT, "logo.png")
+
+        try:
+            # 로고 이미지 읽기
+            with open(logo_path, "rb") as f:
+                logo_content = f.read()
+
+            # CID는 'logo'로 설정 (HTML에서 cid:logo로 참조)
+            inline_images.append(("logo", logo_content, "image/png", "logo.png"))
+            logger.info(f"Logo image loaded successfully from {logo_path}")
+
+        except FileNotFoundError:
+            logger.warning(f"Logo file not found at {logo_path}")
+        except Exception as e:
+            logger.error(f"Failed to load logo image: {e}", exc_info=True)
+
+        return inline_images
 
     def get_attachments(self, **kwargs) -> list[tuple[str, bytes, str]]:
         """

@@ -7,6 +7,7 @@ Base Email Service
 
 import logging
 from abc import ABC, abstractmethod
+from email.mime.image import MIMEImage
 from typing import Optional
 
 from django.conf import settings
@@ -132,6 +133,20 @@ class BaseEmailService(ABC):
         """
         return None
 
+    def get_inline_images(self, **kwargs) -> list[tuple[str, bytes, str, str]]:
+        """
+        HTML 본문에 인라인으로 포함할 이미지 목록을 반환합니다.
+        하위 클래스에서 오버라이드하여 인라인 이미지를 추가할 수 있습니다.
+
+        Args:
+            **kwargs: 이미지 생성에 필요한 추가 파라미터
+
+        Returns:
+            list[tuple[str, bytes, str, str]]: 인라인 이미지 목록
+            각 튜플은 (Content-ID, 파일 내용, MIME 타입, 파일명) 형식
+        """
+        return []
+
     def send_email(
         self,
         to_email: str,
@@ -180,6 +195,16 @@ class BaseEmailService(ABC):
             attachments = self.get_attachments(**kwargs)
             for filename, content, mimetype in attachments:
                 email.attach(filename, content, mimetype)
+
+            # 인라인 이미지 추가 (CID 방식)
+            inline_images = self.get_inline_images(**kwargs)
+            for cid, content, mimetype, filename in inline_images:
+                # MIMEImage 객체 생성
+                mime_image = MIMEImage(content)
+                mime_image.add_header("Content-ID", f"<{cid}>")
+                mime_image.add_header("Content-Disposition", "inline", filename=filename)
+                # EmailMessage의 attachments 리스트에 직접 추가
+                email.attach(mime_image)
 
             # 이메일 전송
             email.send()
