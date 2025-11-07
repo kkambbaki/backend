@@ -20,13 +20,36 @@ class GameFinishSerializer(serializers.Serializer):
     """
     게임 종료 공통 Serializer
 
-    meta 필드 구조 예시:
+    프론트에서 보내는 정보:
+    1. meta 외 필드 (전체 게임 집계 정보):
+       - session_id, score, wrong_count, reaction_ms_sum, round_count, success_count
+
+    2. meta 필드 (라운드별 상세 데이터):
+       - round_details: 각 라운드의 상세 정보
+
+    meta 필드 구조 예시 (각 라운드별 상세 정보):
     {
-        "early_success_rate": 0.8,        # 초반 성공율 (0.0 ~ 1.0)
-        "late_success_rate": 0.6,         # 후반 성공율 (0.0 ~ 1.0)
-        "time_limit_exceed_rate": 0.2,    # 제한시간 초과 비율 (0.0 ~ 1.0)
-        "round_details": [...]            # 라운드별 상세 데이터 (선택)
+        "round_details": [
+            {
+                "round_number": 1,
+                "score": 10,                    # 해당 라운드 점수
+                "wrong_count": 1,               # 해당 라운드 틀린 개수
+                "reaction_time_ms_sum": 1500,   # 해당 라운드 반응시간 합계
+                "is_success": True,             # 해당 라운드 성공 여부
+                "time_limit_exceeded": False    # 제한시간 초과 여부
+            },
+            {
+                "round_number": 2,
+                "score": 5,
+                "wrong_count": 2,
+                "reaction_time_ms_sum": 2000,
+                "is_success": False,
+                "time_limit_exceeded": True
+            },
+            ...
+        ]
     }
+
     """
 
     session_id = serializers.UUIDField(required=True)
