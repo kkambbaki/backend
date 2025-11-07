@@ -34,7 +34,7 @@ class GameFinishSerializer(serializers.Serializer):
                 "round_number": 1,
                 "score": 10,                    # 해당 라운드 점수
                 "wrong_count": 1,               # 해당 라운드 틀린 개수
-                "reaction_time_ms_sum": 1500,   # 해당 라운드 반응시간 합계
+                "reaction_ms_sum": 1500,   # 해당 라운드 반응시간 합계
                 "is_success": True,             # 해당 라운드 성공 여부
                 "time_limit_exceeded": False    # 제한시간 초과 여부
             },
@@ -42,7 +42,7 @@ class GameFinishSerializer(serializers.Serializer):
                 "round_number": 2,
                 "score": 5,
                 "wrong_count": 2,
-                "reaction_time_ms_sum": 2000,
+                "reaction_ms_sum": 2000,
                 "is_success": False,
                 "time_limit_exceeded": True
             },
@@ -87,7 +87,7 @@ class GameFinishSerializer(serializers.Serializer):
         help_text=(
             "라운드별 상세 데이터. 구조: "
             "{'round_details': [{'round_number': 1, 'score': 10, 'wrong_count': 1, "
-            "'reaction_time_ms_sum': 1500, 'is_success': True, 'time_limit_exceeded': False}, ...]}"
+            "'reaction_ms_sum': 1500, 'is_success': True, 'time_limit_exceeded': False}, ...]}"
         ),
     )
 
