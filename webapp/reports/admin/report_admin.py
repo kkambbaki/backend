@@ -30,7 +30,6 @@ class GameReportInline(TabularInline):
         "game",
         "last_reflected_session",
         "is_up_to_date_display",
-        "advice_count",
         "view_details_link",
         "updated_at",
     )
@@ -38,7 +37,6 @@ class GameReportInline(TabularInline):
         "game",
         "last_reflected_session",
         "is_up_to_date_display",
-        "advice_count",
         "view_details_link",
         "updated_at",
     )
@@ -53,15 +51,6 @@ class GameReportInline(TabularInline):
         return "-"
 
     is_up_to_date_display.short_description = "최신 반영"
-
-    def advice_count(self, obj):
-        """조언 개수 표시"""
-        if obj.pk:
-            count = obj.advices.count()
-            return render_count(count)
-        return "-"
-
-    advice_count.short_description = "조언 수"
 
     def view_details_link(self, obj):
         """상세 보기 링크"""
@@ -194,7 +183,7 @@ class ReportAdmin(ModelAdmin):
     def get_queryset(self, request):
         """쿼리셋 최적화"""
         queryset = super().get_queryset(request)
-        return queryset.select_related("user", "child").prefetch_related("game_reports")
+        return queryset.select_related("user", "child").prefetch_related("game_reports__advices")
 
     def has_add_permission(self, request):
         """생성 불가 (서비스를 통해서만 생성)"""

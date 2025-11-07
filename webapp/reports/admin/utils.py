@@ -9,11 +9,12 @@ COLOR_GREY = "#9E9E9E"
 
 # 리포트 상태별 색상 맵핑
 REPORT_STATUS_COLORS = {
-    "NO_GAMES_PLAYED": COLOR_GREY,
-    "INSUFFICIENT_DATA": COLOR_ORANGE,
-    "ANALYZING": COLOR_BLUE,
-    "COMPLETED": COLOR_GREEN,
-    "FAILED": COLOR_RED,
+    "no_games_played": COLOR_GREY,
+    "no_up_to_date": COLOR_ORANGE,
+    "pending": COLOR_BLUE,
+    "generating": COLOR_BLUE,
+    "completed": COLOR_GREEN,
+    "error": COLOR_RED,
 }
 
 

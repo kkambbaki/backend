@@ -142,7 +142,7 @@ class GameReportAdmin(ModelAdmin):
 
     def advice_count_display(self, obj):
         """조언 개수 표시"""
-        count = obj.advices.count()
+        count = len(obj.advices.all())
         return render_count(count)
 
     advice_count_display.short_description = "조언 수"
