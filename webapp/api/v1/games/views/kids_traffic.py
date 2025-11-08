@@ -119,6 +119,7 @@ class KidsTrafficFinishAPIView(BaseAPIView):
                 reaction_ms_sum=data.get("reaction_ms_sum"),
                 round_count=data.get("round_count"),
                 success_count=data.get("success_count"),
+                meta=data.get("meta", {}),
             )
 
         return Response(
