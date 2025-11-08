@@ -318,6 +318,13 @@ SIMPLE_JWT = {
 
 # ========== END Simple JWT / REST AUTH settings ==========
 
+# ========== PDF settings ==========
+
+# PDF 파일 만료 기간 (일)
+PDF_EXPIRY_DAYS = 7
+
+# ========== END PDF settings ==========
+
 # ========== Email settings ==========
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
