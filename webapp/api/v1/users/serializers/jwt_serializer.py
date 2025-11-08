@@ -14,3 +14,6 @@ class JWTSerializer(serializers.Serializer):
 
     def get_user(self, obj):
         return UserDetailSerializer(obj["user"], context=self.context).data
+
+    class Meta:
+        fields = ["access", "refresh", "user"]
