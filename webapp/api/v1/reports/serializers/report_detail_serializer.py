@@ -24,6 +24,7 @@ class ReportDetailSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "child",
+            "concentration_score",
             "game_reports",
             "created_at",
             "updated_at",
