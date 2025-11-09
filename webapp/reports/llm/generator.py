@@ -43,15 +43,56 @@ class ReportAdviceGenerator(ABC):
         # 체인 생성
         self.chain = self.prompt | self.llm | self.parser
 
-    @abstractmethod
     def generate_advice(self, report_data: dict) -> list:
-        """리포트 데이터를 기반으로 조언 생성
+        """리포트 데이터를 기반으로 조언 생성 (Template Method)
 
         Args:
             report_data: 리포트 정보를 담은 딕셔너리
 
         Returns:
-            생성된 조언 문자열 리스트
+            생성된 조언 딕셔너리 리스트, 각 딕셔너리는 'title'과 'description' 키를 포함
+        """
+        for attempt in range(self.max_retries):
+            try:
+                payload = self._prepare_payload(report_data)
+
+                # LLM 체인 실행
+                result = self.chain.invoke(payload)
+
+                # 응답 파싱 및 검증
+                response = GameReportAdviceResponse(**result)
+
+                return [{"title": item.title, "description": item.description} for item in response.analysis]
+
+            except ValidationError as e:
+                if attempt < self.max_retries - 1:
+                    time.sleep(1)
+                    continue
+                raise ValueError(f"LLM 응답 검증 실패: {e}")
+
+            except json.JSONDecodeError as e:
+                if attempt < self.max_retries - 1:
+                    time.sleep(1)
+                    continue
+                raise ValueError(f"LLM 응답 JSON 파싱 실패: {e}")
+
+            except Exception as e:
+                if attempt < self.max_retries - 1:
+                    time.sleep(1)
+                    continue
+                raise ValueError(f"조언 생성 중 오류 발생: {e}")
+
+        raise ValueError("최대 재시도 횟수 초과")
+
+    @abstractmethod
+    def _prepare_payload(self, report_data: dict) -> dict:
+        """리포트 데이터를 LLM 체인에 전달할 payload로 변환
+
+        Args:
+            report_data: 리포트 정보를 담은 딕셔너리
+
+        Returns:
+            LLM 체인에 전달할 딕셔너리
         """
         pass
 
@@ -85,9 +126,9 @@ class KidsTrafficGameReportAdviceGenerator(ReportAdviceGenerator):
         """LLM 응답을 파싱하기 위한 Pydantic 모델을 가져옵니다."""
         return GameReportAdviceResponse
 
-    def generate_advice(self, report_data: dict) -> list:
+    def _prepare_payload(self, report_data: dict) -> dict:
         """
-        꼬마 교통지킴이 게임 리포트 데이터를 기반으로 조언 생성
+        꼬마 교통지킴이 게임 리포트 데이터를 LLM payload로 변환
 
         Args:
             report_data: 리포트 정보를 담은 딕셔너리, 다음 키 포함:
@@ -103,48 +144,20 @@ class KidsTrafficGameReportAdviceGenerator(ReportAdviceGenerator):
                 - recent_trends: 최근 3개의 게임 결과 리스트
 
         Returns:
-            생성된 조언 딕셔너리 리스트, 각 딕셔너리는 'title'과 'description' 키를 포함
+            LLM 체인에 전달할 딕셔너리
         """
-        for attempt in range(self.max_retries):
-            try:
-                result = self.chain.invoke(
-                    {
-                        "total_plays_count": report_data.get("total_plays_count", 0),
-                        "total_play_rounds_count": report_data.get("total_play_rounds_count", 0),
-                        "max_rounds_count": report_data.get("max_rounds_count", 0),
-                        "avg_rounds_count": report_data.get("avg_rounds_count", 0),
-                        "total_reaction_ms_avg": report_data.get("total_reaction_ms_avg", 0),
-                        "total_play_actions_count": report_data.get("total_play_actions_count", 0),
-                        "total_success_count": report_data.get("total_success_count", 0),
-                        "total_wrong_count": report_data.get("total_wrong_count", 0),
-                        "wrong_rate": report_data.get("wrong_rate", 0),
-                        "recent_trends": report_data.get("recent_trends", []),
-                    }
-                )
-
-                response = GameReportAdviceResponse(**result)
-
-                return [{"title": item.title, "description": item.description} for item in response.analysis]
-
-            except ValidationError as e:
-                if attempt < self.max_retries - 1:
-                    time.sleep(1)
-                    continue
-                raise Exception(f"Validation failed after {self.max_retries} attempts: {e}")
-
-            except json.JSONDecodeError as e:
-                if attempt < self.max_retries - 1:
-                    time.sleep(1)
-                    continue
-                raise Exception(f"JSON parsing failed after {self.max_retries} attempts: {e}")
-
-            except Exception as e:
-                if attempt < self.max_retries - 1:
-                    time.sleep(1)
-                    continue
-                raise Exception(f"Advice generation failed after {self.max_retries} attempts: {e}")
-
-        raise Exception(f"Failed to generate advice after {self.max_retries} attempts")
+        return {
+            "total_plays_count": report_data.get("total_plays_count", 0),
+            "total_play_rounds_count": report_data.get("total_play_rounds_count", 0),
+            "max_rounds_count": report_data.get("max_rounds_count", 0),
+            "avg_rounds_count": report_data.get("avg_rounds_count", 0),
+            "total_reaction_ms_avg": report_data.get("total_reaction_ms_avg", 0),
+            "total_play_actions_count": report_data.get("total_play_actions_count", 0),
+            "total_success_count": report_data.get("total_success_count", 0),
+            "total_wrong_count": report_data.get("total_wrong_count", 0),
+            "wrong_rate": report_data.get("wrong_rate", 0),
+            "recent_trends": report_data.get("recent_trends", []),
+        }
 
 
 class BBStarGameReportAdviceGenerator(ReportAdviceGenerator):
@@ -158,9 +171,9 @@ class BBStarGameReportAdviceGenerator(ReportAdviceGenerator):
         """LLM 응답을 파싱하기 위한 Pydantic 모델을 가져옵니다."""
         return GameReportAdviceResponse
 
-    def generate_advice(self, report_data: dict) -> list:
+    def _prepare_payload(self, report_data: dict) -> dict:
         """
-        뿅뿅 아기별 게임 리포트 데이터를 기반으로 조언 생성
+        뿅뿅 아기별 게임 리포트 데이터를 LLM payload로 변환
 
         Args:
             report_data: 리포트 정보를 담은 딕셔너리, 다음 키 포함:
@@ -175,44 +188,16 @@ class BBStarGameReportAdviceGenerator(ReportAdviceGenerator):
                 - recent_trends: 최근 3개의 게임 결과 리스트
 
         Returns:
-            생성된 조언 딕셔너리 리스트, 각 딕셔너리는 'title'과 'description' 키를 포함
+            LLM 체인에 전달할 딕셔너리
         """
-        for attempt in range(self.max_retries):
-            try:
-                result = self.chain.invoke(
-                    {
-                        "total_plays_count": report_data.get("total_plays_count", 0),
-                        "total_play_rounds_count": report_data.get("total_play_rounds_count", 0),
-                        "max_rounds_count": report_data.get("max_rounds_count", 0),
-                        "avg_rounds_count": report_data.get("avg_rounds_count", 0),
-                        "total_play_actions_count": report_data.get("total_play_actions_count", 0),
-                        "total_success_count": report_data.get("total_success_count", 0),
-                        "total_wrong_count": report_data.get("total_wrong_count", 0),
-                        "wrong_rate": report_data.get("wrong_rate", 0),
-                        "recent_trends": report_data.get("recent_trends", []),
-                    }
-                )
-
-                response = GameReportAdviceResponse(**result)
-
-                return [{"title": item.title, "description": item.description} for item in response.analysis]
-
-            except ValidationError as e:
-                if attempt < self.max_retries - 1:
-                    time.sleep(1)
-                    continue
-                raise Exception(f"Validation failed after {self.max_retries} attempts: {e}")
-
-            except json.JSONDecodeError as e:
-                if attempt < self.max_retries - 1:
-                    time.sleep(1)
-                    continue
-                raise Exception(f"JSON parsing failed after {self.max_retries} attempts: {e}")
-
-            except Exception as e:
-                if attempt < self.max_retries - 1:
-                    time.sleep(1)
-                    continue
-                raise Exception(f"Advice generation failed after {self.max_retries} attempts: {e}")
-
-        raise Exception(f"Failed to generate advice after {self.max_retries} attempts")
+        return {
+            "total_plays_count": report_data.get("total_plays_count", 0),
+            "total_play_rounds_count": report_data.get("total_play_rounds_count", 0),
+            "max_rounds_count": report_data.get("max_rounds_count", 0),
+            "avg_rounds_count": report_data.get("avg_rounds_count", 0),
+            "total_play_actions_count": report_data.get("total_play_actions_count", 0),
+            "total_success_count": report_data.get("total_success_count", 0),
+            "total_wrong_count": report_data.get("total_wrong_count", 0),
+            "wrong_rate": report_data.get("wrong_rate", 0),
+            "recent_trends": report_data.get("recent_trends", []),
+        }
