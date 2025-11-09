@@ -1,8 +1,8 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.urls import reverse
 from django.utils.html import format_html
 
-from reports.models import GameReport, Report
+from reports.models import GameReport, Report, ReportBotToken
 from unfold.admin import ModelAdmin, TabularInline
 
 from .utils import (
@@ -103,6 +103,7 @@ class ReportAdmin(ModelAdmin):
         "updated_at",
     )
     autocomplete_fields = ("user", "child")
+    actions = ["generate_bot_token"]
 
     fieldsets = (
         (
@@ -196,3 +197,48 @@ class ReportAdmin(ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         """삭제는 슈퍼유저만 가능"""
         return request.user.is_superuser
+
+    @admin.action(description="선택한 리포트에 대한 BOT 토큰 생성")
+    def generate_bot_token(self, request, queryset):
+        """선택한 리포트에 대한 BOT 토큰을 생성합니다."""
+        success_count = 0
+        error_count = 0
+
+        for report in queryset:
+            try:
+                bot_token = ReportBotToken.create_for_report(report)
+                success_count += 1
+
+                # 생성된 토큰의 어드민 페이지 링크 표시
+                token_admin_url = reverse("admin:reports_reportbottoken_change", args=[bot_token.pk])
+                messages.success(
+                    request,
+                    format_html(
+                        "리포트 #{} ({}님 - {})의 BOT 토큰이 생성되었습니다. "
+                        '<a href="{}" style="color: #2196F3; text-decoration: none; font-weight: 500;">토큰 보기 →</a>',
+                        report.id,
+                        report.user.username,
+                        report.child.name,
+                        token_admin_url,
+                    ),
+                )
+            except Exception as e:
+                error_count += 1
+                messages.error(
+                    request,
+                    f"리포트 #{report.id}의 BOT 토큰 생성 중 오류 발생: {str(e)}",
+                )
+
+        # 요약 메시지
+        if success_count > 0:
+            self.message_user(
+                request,
+                f"{success_count}개의 BOT 토큰이 생성되었습니다.",
+                messages.SUCCESS,
+            )
+        if error_count > 0:
+            self.message_user(
+                request,
+                f"{error_count}개의 BOT 토큰 생성에 실패했습니다.",
+                messages.ERROR,
+            )
