@@ -37,6 +37,7 @@ class KidsTrafficStartAPIView(BaseAPIView):
                 response=GameStartResponseSerializer,
                 description="게임 세션 시작 성공",
             ),
+            400: OpenApiResponse(description="이미 진행 중인 게임 세션이 있음"),
             404: OpenApiResponse(description="게임 또는 아이를 찾을 수 없음"),
         },
     )
@@ -50,6 +51,20 @@ class KidsTrafficStartAPIView(BaseAPIView):
         except Http404:
             raise NotFoundError(message="게임( KIDS_TRAFFIC, 꼬마 교통지킴이 )이 활성화되어 있지 않습니다.")
         child = get_object_or_404(Child, id=child_id)
+
+        # 중복 세션 방지
+        existing_session = (
+            GameSession.objects.filter(
+                child=child,
+                game=game,
+                status=GameSessionStatusChoice.STARTED,
+            )
+            .order_by("-started_at")
+            .first()
+        )
+
+        if existing_session:
+            raise ValidationError(message=f"이미 진행 중인 게임 세션이 있습니다. (세션 ID: {existing_session.id})")
 
         session = GameSession.objects.create(
             parent=request.user,

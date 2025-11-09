@@ -37,6 +37,7 @@ class BBStarStartAPIView(BaseAPIView):
                 response=GameStartResponseSerializer,
                 description="게임 세션 시작 성공",
             ),
+            400: OpenApiResponse(description="이미 진행 중인 게임 세션이 있음"),
             404: OpenApiResponse(description="게임 또는 아이를 찾을 수 없음"),
         },
     )
@@ -50,6 +51,20 @@ class BBStarStartAPIView(BaseAPIView):
         except Http404:
             raise NotFoundError(message="게임( BB_STAR, 뿅뿅 아기별 게임 )이 활성화되어 있지 않습니다.")
         child = get_object_or_404(Child, id=child_id)
+
+        # 중복 세션 방지: 해당 child와 game의 활성 세션 확인
+        existing_session = (
+            GameSession.objects.filter(
+                child=child,
+                game=game,
+                status=GameSessionStatusChoice.STARTED,
+            )
+            .order_by("-started_at")
+            .first()
+        )
+
+        if existing_session:
+            raise ValidationError(message=f"이미 진행 중인 게임 세션이 있습니다. (세션 ID: {existing_session.id})")
 
         session = GameSession.objects.create(
             parent=request.user,
