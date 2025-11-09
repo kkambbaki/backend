@@ -337,3 +337,11 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # ========== END Email settings ==========
+
+# ========== LLM settings ==========
+
+OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
+LLM_PROVIDER = env("LLM_PROVIDER", default="openai")
+OPENAI_MODEL = env("OPENAI_MODEL", default="gpt-5-nano")
+
+# ========== END LLM settings ==========
