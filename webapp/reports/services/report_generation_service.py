@@ -7,6 +7,7 @@ from reports.choices import ReportStatusChoice
 from reports.models import Report
 
 from .game_report_generation_service import GameReportGenerationService
+from .report_concentration_score_generation_service import ReportConcentrationScoreGenerationService
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +34,11 @@ class ReportGenerationService:
 
         games = Game.objects.active()
 
-        # TODO: (koa) 여기서 집중력 점수 수정하는 로직 추가 필요
-
         for game in games:
             GameReportGenerationService.update_or_create_game_report(report, game)
+
+        # 집중력 점수 계산 및 업데이트
+        ReportConcentrationScoreGenerationService.update_concentration_score(report)
 
         # 리포트 생성 완료 후 COMPLETED 상태로 변경
         report.status = ReportStatusChoice.COMPLETED
