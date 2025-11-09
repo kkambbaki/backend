@@ -4,7 +4,7 @@ from rest_framework import serializers
 from .game_report_advice_serializer import GameReportAdviceSerializer
 
 
-class GameReportSerializer(serializers.ModelSerializer):
+class GameReportDetailSerializer(serializers.ModelSerializer):
     """게임 리포트 Serializer"""
 
     game_name = serializers.CharField(
