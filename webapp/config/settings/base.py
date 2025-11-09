@@ -345,3 +345,13 @@ LLM_PROVIDER = env("LLM_PROVIDER", default="openai")
 OPENAI_MODEL = env("OPENAI_MODEL", default="gpt-5-nano")
 
 # ========== END LLM settings ==========
+
+# ========== Frontend settings ==========
+
+# 프론트엔드 리포트 URL (BOT 토큰을 사용하여 PDF 생성)
+FRONTEND_REPORT_URL = env(
+    "FRONTEND_REPORT_URL",
+    default="https://frontend-git-dev-yuwon.vercel.app/reports/",
+)
+
+# ========== END Frontend settings ==========

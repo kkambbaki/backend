@@ -5,7 +5,7 @@ from django.db import transaction
 from games.models import Game, GameResult
 from reports.choices import ReportStatusChoice
 from reports.models import Report
-from reports.tasks.generate_report_task import generate_report_task
+from reports.tasks.report_task import generate_report_task
 
 logger = logging.getLogger(__name__)
 

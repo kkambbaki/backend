@@ -24,7 +24,7 @@ def send_report_email_task(
     to_email: str,
     site_url: str,
     pdf_file_path: Optional[str] = None,
-    pdf_filename: str = "report.pdf",
+    pdf_filename: str = "깜빡이 집중력 분석 리포트.pdf",
     site_name: str = "깜빡이",
 ) -> dict:
     """
