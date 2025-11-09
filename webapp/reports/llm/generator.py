@@ -91,10 +91,15 @@ class KidsTrafficGameReportAdviceGenerator(ReportAdviceGenerator):
 
         Args:
             report_data: 리포트 정보를 담은 딕셔너리, 다음 키 포함:
-                - error_rate: 실수율 (%)
-                - reaction_time: 반응속도 (초)
-                - avg_focus_time: 평균 집중시간 (분)
-                - session_count: 세션 수
+                - total_plays_count: 전체 플레이 횟수
+                - total_play_rounds_count: 전체 플레이 라운드 수
+                - max_rounds_count: 최대 도달 라운드 횟수
+                - total_reaction_ms_avg: 평균 반응시간 (밀리초)
+                - total_play_actions_count: 전체 플레이 액션 수
+                - total_success_count: 전체 성공 횟수
+                - total_wrong_count: 전체 오답 횟수
+                - wrong_rate: 오답률 (%)
+                - recent_trends: 최근 3개의 게임 결과 리스트
 
         Returns:
             생성된 조언 딕셔너리 리스트, 각 딕셔너리는 'title'과 'description' 키를 포함
@@ -103,10 +108,15 @@ class KidsTrafficGameReportAdviceGenerator(ReportAdviceGenerator):
             try:
                 result = self.chain.invoke(
                     {
-                        "error_rate": report_data.get("error_rate", 0),
-                        "reaction_time": report_data.get("reaction_time", 0),
-                        "avg_focus_time": report_data.get("avg_focus_time", 0),
-                        "session_count": report_data.get("session_count", 0),
+                        "total_plays_count": report_data.get("total_plays_count", 0),
+                        "total_play_rounds_count": report_data.get("total_play_rounds_count", 0),
+                        "max_rounds_count": report_data.get("max_rounds_count", 0),
+                        "total_reaction_ms_avg": report_data.get("total_reaction_ms_avg", 0),
+                        "total_play_actions_count": report_data.get("total_play_actions_count", 0),
+                        "total_success_count": report_data.get("total_success_count", 0),
+                        "total_wrong_count": report_data.get("total_wrong_count", 0),
+                        "wrong_rate": report_data.get("wrong_rate", 0),
+                        "recent_trends": report_data.get("recent_trends", []),
                     }
                 )
 
@@ -152,10 +162,14 @@ class BBStarGameReportAdviceGenerator(ReportAdviceGenerator):
 
         Args:
             report_data: 리포트 정보를 담은 딕셔너리, 다음 키 포함:
-                - early_success_rate: 초반 성공률 (%)
-                - late_success_rate: 후반 성공률 (%)
-                - error_rate: 오답률 (%)
-                - timeout_rate: 제한시간 초과비율 (%)
+                - total_plays_count: 전체 플레이 횟수
+                - total_play_rounds_count: 전체 플레이 라운드 수
+                - max_rounds_count: 최대 도달 라운드 횟수
+                - total_play_actions_count: 전체 플레이 액션 수
+                - total_success_count: 전체 성공 횟수
+                - total_wrong_count: 전체 오답 횟수
+                - wrong_rate: 오답률 (%)
+                - recent_trends: 최근 3개의 게임 결과 리스트
 
         Returns:
             생성된 조언 딕셔너리 리스트, 각 딕셔너리는 'title'과 'description' 키를 포함
@@ -164,10 +178,14 @@ class BBStarGameReportAdviceGenerator(ReportAdviceGenerator):
             try:
                 result = self.chain.invoke(
                     {
-                        "early_success_rate": report_data.get("early_success_rate", 0),
-                        "late_success_rate": report_data.get("late_success_rate", 0),
-                        "error_rate": report_data.get("error_rate", 0),
-                        "timeout_rate": report_data.get("timeout_rate", 0),
+                        "total_plays_count": report_data.get("total_plays_count", 0),
+                        "total_play_rounds_count": report_data.get("total_play_rounds_count", 0),
+                        "max_rounds_count": report_data.get("max_rounds_count", 0),
+                        "total_play_actions_count": report_data.get("total_play_actions_count", 0),
+                        "total_success_count": report_data.get("total_success_count", 0),
+                        "total_wrong_count": report_data.get("total_wrong_count", 0),
+                        "wrong_rate": report_data.get("wrong_rate", 0),
+                        "recent_trends": report_data.get("recent_trends", []),
                     }
                 )
 

@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Avg, Count, Sum
+from django.db.models import Count, Sum
 from django.utils.translation import gettext_lazy as _
 
 from games.choices import GameCodeChoice
@@ -76,8 +76,67 @@ class GameReport(BaseModel):
         help_text="게임 결과를 추합한 게임과 관련된 추가 메타 정보",
     )
 
+    # 통계 컬럼들
+    total_plays_count = models.IntegerField(
+        default=0,
+        verbose_name=_("전체 플레이 횟수"),
+        help_text="GameResult의 개수",
+    )
+    total_play_rounds_count = models.IntegerField(
+        default=0,
+        verbose_name=_("전체 플레이 라운드 수"),
+        help_text="GameResult의 round_count 합",
+    )
+    max_rounds_count = models.IntegerField(
+        default=0,
+        verbose_name=_("최대 도달 라운드 횟수"),
+        help_text="game의 max_round와 round_count가 같은 경우의 수",
+    )
+    total_reaction_ms_sum = models.BigIntegerField(
+        default=0,
+        verbose_name=_("총 반응시간 합계"),
+        help_text="reaction_ms_sum 누적값 (밀리초)",
+    )
+    total_play_actions_count = models.IntegerField(
+        default=0,
+        verbose_name=_("전체 플레이 액션 수"),
+        help_text="success_count + wrong_count",
+    )
+    total_success_count = models.IntegerField(
+        default=0,
+        verbose_name=_("전체 성공 횟수"),
+        help_text="success_count 누적",
+    )
+    total_wrong_count = models.IntegerField(
+        default=0,
+        verbose_name=_("전체 오답 횟수"),
+        help_text="wrong_count 누적",
+    )
+
     def __str__(self):
         return f"{self.report} - {self.game.name}"
+
+    def get_total_reaction_ms_avg(self):
+        """
+        평균 반응시간 계산 (밀리초)
+
+        Returns:
+            float or None: 평균 반응시간 (밀리초), 액션이 없으면 None
+        """
+        if self.total_play_actions_count == 0:
+            return None
+        return self.total_reaction_ms_sum / self.total_play_actions_count
+
+    def get_wrong_rate(self):
+        """
+        오답률 계산 (%)
+
+        Returns:
+            float or None: 오답률 (%), 액션이 없으면 None
+        """
+        if self.total_play_actions_count == 0:
+            return None
+        return (self.total_wrong_count / self.total_play_actions_count) * 100
 
     def get_actual_latest_session_id(self):
         """
@@ -125,140 +184,98 @@ class GameReport(BaseModel):
             game=self.game,
         ).order_by("-created_at")
 
-    def aggregate_statistics(self):
+    def get_recent_trends(self, limit=3):
         """
-        게임 결과를 집계하여 통계 데이터 생성 및 meta 필드에 저장
+        최근 N개의 GameResult 정보 반환
+
+        Args:
+            limit: 반환할 GameResult 개수 (기본값: 3)
 
         Returns:
-            dict: 게임별 통계 데이터 (meta 필드에도 저장됨)
+            list: 최근 GameResult 정보 딕셔너리 리스트
+        """
+        recent_results = self.get_game_results()[:limit]
+        trends = []
+
+        for result in recent_results:
+            trend_data = {
+                "round_count": result.round_count,
+                "success_count": result.success_count,
+                "wrong_count": result.wrong_count,
+            }
+
+            # 반응시간은 게임 종류에 따라 선택적으로 추가
+            if self.game.code == GameCodeChoice.KIDS_TRAFFIC:
+                trend_data["reaction_ms_sum"] = result.reaction_ms_sum
+
+            trends.append(trend_data)
+
+        return trends
+
+    def aggregate_statistics(self):
+        """
+        게임 결과를 집계하여 통계 컬럼들을 업데이트
+
+        Returns:
+            bool: 집계 성공 여부
         """
         game_results = self.get_game_results()
 
         if not game_results.exists():
-            return None
+            # 결과가 없으면 모든 통계를 0으로 초기화
+            self.total_plays_count = 0
+            self.total_play_rounds_count = 0
+            self.max_rounds_count = 0
+            self.total_reaction_ms_sum = 0
+            self.total_play_actions_count = 0
+            self.total_success_count = 0
+            self.total_wrong_count = 0
+            self.save(
+                update_fields=[
+                    "total_plays_count",
+                    "total_play_rounds_count",
+                    "max_rounds_count",
+                    "total_reaction_ms_sum",
+                    "total_play_actions_count",
+                    "total_success_count",
+                    "total_wrong_count",
+                    "updated_at",
+                ]
+            )
+            return False
 
-        # 게임 코드별로 다른 통계 계산
-        statistics = None
-        if self.game.code == GameCodeChoice.KIDS_TRAFFIC:
-            statistics = self._aggregate_kids_traffic_statistics(game_results)
-        elif self.game.code == GameCodeChoice.BB_STAR:
-            statistics = self._aggregate_bb_star_statistics(game_results)
-
-        # 통계 데이터를 meta 필드에 저장
-        if statistics:
-            self.meta = statistics
-            self.save(update_fields=["meta", "updated_at"])
-
-        return statistics
-
-    def _aggregate_kids_traffic_statistics(self, game_results):
-        """
-        꼬마 교통지킴이 게임 통계 집계
-
-        Args:
-            game_results: GameResult 쿼리셋
-
-        Returns:
-            dict: 통계 데이터
-                - error_rate: 실수율 (%)
-                - reaction_time: 평균 반응속도 (초)
-                - avg_focus_time: 평균 집중시간 (분)
-                - session_count: 세션 수
-        """
+        # 기본 통계 집계 (Django ORM 사용)
         stats = game_results.aggregate(
+            total_plays=Count("id"),
             total_rounds=Sum("round_count"),
+            total_reaction_ms=Sum("reaction_ms_sum"),
+            total_success=Sum("success_count"),
             total_wrong=Sum("wrong_count"),
-            avg_reaction_ms=Avg("reaction_ms_sum"),
-            session_count=Count("id"),
         )
 
-        total_rounds = stats["total_rounds"] or 0
-        total_wrong = stats["total_wrong"] or 0
-        avg_reaction_ms = stats["avg_reaction_ms"] or 0
-        session_count = stats["session_count"] or 0
+        self.total_plays_count = stats["total_plays"] or 0
+        self.total_play_rounds_count = stats["total_rounds"] or 0
+        self.total_reaction_ms_sum = stats["total_reaction_ms"] or 0
+        self.total_success_count = stats["total_success"] or 0
+        self.total_wrong_count = stats["total_wrong"] or 0
+        self.total_play_actions_count = self.total_success_count + self.total_wrong_count
 
-        # 실수율 계산 (오답 / 총 라운드 * 100)
-        error_rate = (total_wrong / total_rounds * 100) if total_rounds > 0 else 0
+        # 최대 도달 라운드 횟수 계산
+        max_round = self.game.max_round
+        self.max_rounds_count = game_results.filter(round_count=max_round).count()
 
-        # 반응속도를 초 단위로 변환 (평균 반응 시간 / 라운드 수)
-        avg_reaction_time_per_round = avg_reaction_ms / total_rounds if total_rounds > 0 else 0
-        reaction_time = avg_reaction_time_per_round / 1000  # ms -> seconds
+        # 통계 컬럼들 저장
+        self.save(
+            update_fields=[
+                "total_plays_count",
+                "total_play_rounds_count",
+                "max_rounds_count",
+                "total_reaction_ms_sum",
+                "total_play_actions_count",
+                "total_success_count",
+                "total_wrong_count",
+                "updated_at",
+            ]
+        )
 
-        # 평균 집중시간 (분) - 각 세션의 메타 데이터에서 추출
-        focus_times = []
-        for result in game_results:
-            if result.meta and "focus_time_minutes" in result.meta:
-                focus_times.append(result.meta["focus_time_minutes"])
-
-        avg_focus_time = sum(focus_times) / len(focus_times) if focus_times else 10  # 기본값 10분
-
-        return {
-            "error_rate": round(error_rate, 2),
-            "reaction_time": round(reaction_time, 2),
-            "avg_focus_time": round(avg_focus_time, 2),
-            "session_count": session_count,
-        }
-
-    def _aggregate_bb_star_statistics(self, game_results):
-        """
-        뿅뿅 아기별 게임 통계 집계
-
-        Args:
-            game_results: GameResult 쿼리셋
-
-        Returns:
-            dict: 통계 데이터
-                - early_success_rate: 초반 성공률 (%)
-                - late_success_rate: 후반 성공률 (%)
-                - error_rate: 오답률 (%)
-                - timeout_rate: 제한시간 초과비율 (%)
-        """
-        total_early_rounds = 0
-        total_early_success = 0
-        total_late_rounds = 0
-        total_late_success = 0
-        total_rounds = 0
-        total_wrong = 0
-        total_timeout = 0
-
-        for result in game_results:
-            if not result.meta:
-                continue
-
-            # 메타 데이터에서 라운드별 정보 추출
-            rounds_data = result.meta.get("rounds", [])
-
-            for idx, round_data in enumerate(rounds_data):
-                total_rounds += 1
-
-                # 초반/후반 구분 (전반부 50%는 초반, 후반부 50%는 후반)
-                is_early = idx < len(rounds_data) / 2
-
-                if is_early:
-                    total_early_rounds += 1
-                    if round_data.get("success", False):
-                        total_early_success += 1
-                else:
-                    total_late_rounds += 1
-                    if round_data.get("success", False):
-                        total_late_success += 1
-
-                # 오답 및 타임아웃 카운트
-                if not round_data.get("success", False):
-                    total_wrong += 1
-
-                if round_data.get("timeout", False):
-                    total_timeout += 1
-
-        # 성공률 계산
-        early_success_rate = (total_early_success / total_early_rounds * 100) if total_early_rounds > 0 else 0
-        late_success_rate = (total_late_success / total_late_rounds * 100) if total_late_rounds > 0 else 0
-        error_rate = (total_wrong / total_rounds * 100) if total_rounds > 0 else 0
-        timeout_rate = (total_timeout / total_rounds * 100) if total_rounds > 0 else 0
-
-        return {
-            "early_success_rate": round(early_success_rate, 2),
-            "late_success_rate": round(late_success_rate, 2),
-            "error_rate": round(error_rate, 2),
-            "timeout_rate": round(timeout_rate, 2),
-        }
+        return True

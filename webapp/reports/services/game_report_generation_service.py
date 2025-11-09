@@ -46,11 +46,21 @@ class GameReportGenerationService:
         # 게임 관련 통계 및 분석 업데이트
         game_report.aggregate_statistics()
 
-        # meta를 재로드하여 최신 통계 데이터 가져오기
-        game_report.refresh_from_db(fields=["meta"])
+        # 통계 컬럼을 재로드하여 최신 데이터 가져오기
+        game_report.refresh_from_db(
+            fields=[
+                "total_plays_count",
+                "total_play_rounds_count",
+                "max_rounds_count",
+                "total_reaction_ms_sum",
+                "total_play_actions_count",
+                "total_success_count",
+                "total_wrong_count",
+            ]
+        )
 
-        # meta 데이터가 있으면 LLM 조언 생성
-        if game_report.meta:
+        # 통계 데이터가 있으면 LLM 조언 생성
+        if game_report.total_plays_count > 0:
             GameReportGenerationService._generate_game_report_advice(game_report, game)
 
         # 최신 세션으로 업데이트
@@ -65,19 +75,32 @@ class GameReportGenerationService:
         LLM을 사용하여 게임 리포트 조언 생성
 
         Args:
-            game_report: GameReport 객체 (meta 필드에 통계 데이터 포함)
+            game_report: GameReport 객체 (통계 컬럼들에 데이터 포함)
             game: Game 객체
         """
         # 기존 조언 삭제
         GameReportAdvice.objects.filter(game_report=game_report).delete()
 
-        # meta에서 통계 데이터 가져오기
-        statistics = game_report.meta
-
         # 통계 데이터가 없으면 조언 생성 건너뛰기
-        if not statistics or all(v == 0 for v in statistics.values()):
+        if game_report.total_plays_count == 0:
             logger.info(f"No data available for game report {game_report.id}. Skipping advice generation.")
             return
+
+        # 통계 데이터 준비
+        total_reaction_ms_avg = game_report.get_total_reaction_ms_avg()
+        wrong_rate = game_report.get_wrong_rate()
+
+        statistics = {
+            "total_plays_count": game_report.total_plays_count,
+            "total_play_rounds_count": game_report.total_play_rounds_count,
+            "max_rounds_count": game_report.max_rounds_count,
+            "total_reaction_ms_avg": total_reaction_ms_avg if total_reaction_ms_avg is not None else 0,
+            "total_play_actions_count": game_report.total_play_actions_count,
+            "total_success_count": game_report.total_success_count,
+            "total_wrong_count": game_report.total_wrong_count,
+            "wrong_rate": wrong_rate if wrong_rate is not None else 0,
+            "recent_trends": game_report.get_recent_trends(),
+        }
 
         # 게임별로 적절한 Generator 선택
         generator = None
