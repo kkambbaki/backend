@@ -18,10 +18,12 @@ class GameReportGenerationService:
     """
 
     @staticmethod
-    @transaction.atomic
     def update_or_create_game_report(report, game):
         """
         특정 게임에 대한 GameReport 업데이트 또는 생성
+
+        통계 집계는 트랜잭션 내에서 수행하고,
+        LLM 조언 생성은 트랜잭션 외부에서 수행하여 DB 커넥션 효율화
 
         Args:
             report: Report 객체
@@ -29,6 +31,28 @@ class GameReportGenerationService:
 
         Returns:
             GameReport 객체
+        """
+        # 1단계: 트랜잭션 내에서 통계 집계 및 저장
+        game_report = GameReportGenerationService._update_game_report_statistics(report, game)
+
+        # 2단계: 트랜잭션 외부에서 LLM 조언 생성
+        if game_report and game_report.total_plays_count > 0:
+            GameReportGenerationService._generate_game_report_advice(game_report, game)
+
+        return game_report
+
+    @staticmethod
+    @transaction.atomic
+    def _update_game_report_statistics(report, game):
+        """
+        GameReport의 통계 데이터를 집계하고 저장 (트랜잭션 내에서 수행)
+
+        Args:
+            report: Report 객체
+            game: Game 객체
+
+        Returns:
+            GameReport 객체 또는 None (업데이트가 필요 없는 경우)
         """
         # GameReport 조회 또는 생성
         game_report, created = GameReport.objects.get_or_create_for_report_and_game(
@@ -43,7 +67,7 @@ class GameReportGenerationService:
         if not created and game_report.last_reflected_session_id == latest_session_id:
             return game_report
 
-        # 게임 관련 통계 및 분석 업데이트
+        # 게임 관련 통계 집계 및 저장
         game_report.aggregate_statistics()
 
         # 통계 컬럼을 재로드하여 최신 데이터 가져오기
@@ -58,10 +82,6 @@ class GameReportGenerationService:
                 "total_wrong_count",
             ]
         )
-
-        # 통계 데이터가 있으면 LLM 조언 생성
-        if game_report.total_plays_count > 0:
-            GameReportGenerationService._generate_game_report_advice(game_report, game)
 
         # 최신 세션으로 업데이트
         game_report.last_reflected_session_id = latest_session_id
