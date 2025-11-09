@@ -4,7 +4,7 @@ from django.utils.html import format_html
 from reports.models import GameReport, GameReportAdvice
 from unfold.admin import ModelAdmin, TabularInline
 
-from .utils import (
+from common.admin.utils import (
     COLOR_GREEN,
     COLOR_ORANGE,
     render_colored_text,

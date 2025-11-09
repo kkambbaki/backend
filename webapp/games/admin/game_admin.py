@@ -13,6 +13,7 @@ class GameAdmin(ModelAdmin):
         "id",
         "code",
         "name",
+        "max_round",
         "is_active",
         "created_at",
         "updated_at",
@@ -40,6 +41,7 @@ class GameAdmin(ModelAdmin):
                 "fields": (
                     "code",
                     "name",
+                    "max_round",
                     "is_active",
                 )
             },

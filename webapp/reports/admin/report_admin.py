@@ -5,7 +5,7 @@ from django.utils.html import format_html
 from reports.models import GameReport, Report
 from unfold.admin import ModelAdmin, TabularInline
 
-from .utils import (
+from common.admin.utils import (
     COLOR_GREEN,
     COLOR_GREY,
     COLOR_ORANGE,
@@ -103,6 +103,7 @@ class ReportAdmin(ModelAdmin):
         "updated_at",
     )
     autocomplete_fields = ("user", "child")
+    actions = []
 
     fieldsets = (
         (

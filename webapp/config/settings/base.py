@@ -337,3 +337,21 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # ========== END Email settings ==========
+
+# ========== LLM settings ==========
+
+OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
+LLM_PROVIDER = env("LLM_PROVIDER", default="openai")
+OPENAI_MODEL = env("OPENAI_MODEL", default="gpt-4.1")
+
+# ========== END LLM settings ==========
+
+# ========== Frontend settings ==========
+
+# 프론트엔드 리포트 URL (BOT 토큰을 사용하여 PDF 생성)
+FRONTEND_REPORT_URL = env(
+    "FRONTEND_REPORT_URL",
+    default="https://frontend-git-dev-yuwon.vercel.app/reports/",
+)
+
+# ========== END Frontend settings ==========
