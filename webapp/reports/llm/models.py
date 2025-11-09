@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 class AdviceItem(BaseModel):
     """Single advice item with title and description."""
 
-    title: str = Field(..., description="조언 제목 (10글자 이내)")
+    title: str = Field(..., description="조언 제목 (30글자 이내)")
     description: str = Field(..., description="조언 설명 (2문장 이내)")
 
 
