@@ -1,6 +1,8 @@
 from django.db import models
+from django.db.models import Avg, Count, Sum
 from django.utils.translation import gettext_lazy as _
 
+from games.choices import GameCodeChoice
 from games.models import GameResult
 
 from common.models import BaseModel, BaseModelManager
@@ -77,7 +79,7 @@ class GameReport(BaseModel):
     def __str__(self):
         return f"{self.report} - {self.game.name}"
 
-    def latest_session(self):
+    def get_actual_latest_session_id(self):
         """
         해당 게임의 최신 세션 조회
 
@@ -95,7 +97,7 @@ class GameReport(BaseModel):
             .first()
         )
 
-        return latest_result.session if latest_result else None
+        return latest_result.session.id if latest_result else None
 
     def is_up_to_date(self):
         """
@@ -104,10 +106,159 @@ class GameReport(BaseModel):
         Returns:
             bool: 최신 세션을 반영하고 있으면 True, 아니면 False
         """
-        latest_session = self.latest_session()
+        latest_session_id = self.get_actual_latest_session_id()
 
-        if not latest_session:  # 게임 결과가 없으면 up-to-date로 간주
+        if not latest_session_id:
             return True
 
-        # 최신 결과의 세션과 현재 반영된 세션이 같은지 확인
-        return self.last_reflected_session_id == latest_session.id
+        return self.last_reflected_session_id == latest_session_id
+
+    def get_game_results(self):
+        """
+        해당 게임 리포트에 해당하는 모든 게임 결과 조회
+
+        Returns:
+            QuerySet: GameResult 쿼리셋
+        """
+        return GameResult.objects.filter(
+            child=self.report.child,
+            game=self.game,
+        ).order_by("-created_at")
+
+    def aggregate_statistics(self):
+        """
+        게임 결과를 집계하여 통계 데이터 생성 및 meta 필드에 저장
+
+        Returns:
+            dict: 게임별 통계 데이터 (meta 필드에도 저장됨)
+        """
+        game_results = self.get_game_results()
+
+        if not game_results.exists():
+            return None
+
+        # 게임 코드별로 다른 통계 계산
+        statistics = None
+        if self.game.code == GameCodeChoice.KIDS_TRAFFIC:
+            statistics = self._aggregate_kids_traffic_statistics(game_results)
+        elif self.game.code == GameCodeChoice.BB_STAR:
+            statistics = self._aggregate_bb_star_statistics(game_results)
+
+        # 통계 데이터를 meta 필드에 저장
+        if statistics:
+            self.meta = statistics
+            self.save(update_fields=["meta", "updated_at"])
+
+        return statistics
+
+    def _aggregate_kids_traffic_statistics(self, game_results):
+        """
+        꼬마 교통지킴이 게임 통계 집계
+
+        Args:
+            game_results: GameResult 쿼리셋
+
+        Returns:
+            dict: 통계 데이터
+                - error_rate: 실수율 (%)
+                - reaction_time: 평균 반응속도 (초)
+                - avg_focus_time: 평균 집중시간 (분)
+                - session_count: 세션 수
+        """
+        stats = game_results.aggregate(
+            total_rounds=Sum("round_count"),
+            total_wrong=Sum("wrong_count"),
+            avg_reaction_ms=Avg("reaction_ms_sum"),
+            session_count=Count("id"),
+        )
+
+        total_rounds = stats["total_rounds"] or 0
+        total_wrong = stats["total_wrong"] or 0
+        avg_reaction_ms = stats["avg_reaction_ms"] or 0
+        session_count = stats["session_count"] or 0
+
+        # 실수율 계산 (오답 / 총 라운드 * 100)
+        error_rate = (total_wrong / total_rounds * 100) if total_rounds > 0 else 0
+
+        # 반응속도를 초 단위로 변환 (평균 반응 시간 / 라운드 수)
+        avg_reaction_time_per_round = avg_reaction_ms / total_rounds if total_rounds > 0 else 0
+        reaction_time = avg_reaction_time_per_round / 1000  # ms -> seconds
+
+        # 평균 집중시간 (분) - 각 세션의 메타 데이터에서 추출
+        focus_times = []
+        for result in game_results:
+            if result.meta and "focus_time_minutes" in result.meta:
+                focus_times.append(result.meta["focus_time_minutes"])
+
+        avg_focus_time = sum(focus_times) / len(focus_times) if focus_times else 10  # 기본값 10분
+
+        return {
+            "error_rate": round(error_rate, 2),
+            "reaction_time": round(reaction_time, 2),
+            "avg_focus_time": round(avg_focus_time, 2),
+            "session_count": session_count,
+        }
+
+    def _aggregate_bb_star_statistics(self, game_results):
+        """
+        뿅뿅 아기별 게임 통계 집계
+
+        Args:
+            game_results: GameResult 쿼리셋
+
+        Returns:
+            dict: 통계 데이터
+                - early_success_rate: 초반 성공률 (%)
+                - late_success_rate: 후반 성공률 (%)
+                - error_rate: 오답률 (%)
+                - timeout_rate: 제한시간 초과비율 (%)
+        """
+        total_early_rounds = 0
+        total_early_success = 0
+        total_late_rounds = 0
+        total_late_success = 0
+        total_rounds = 0
+        total_wrong = 0
+        total_timeout = 0
+
+        for result in game_results:
+            if not result.meta:
+                continue
+
+            # 메타 데이터에서 라운드별 정보 추출
+            rounds_data = result.meta.get("rounds", [])
+
+            for idx, round_data in enumerate(rounds_data):
+                total_rounds += 1
+
+                # 초반/후반 구분 (전반부 50%는 초반, 후반부 50%는 후반)
+                is_early = idx < len(rounds_data) / 2
+
+                if is_early:
+                    total_early_rounds += 1
+                    if round_data.get("success", False):
+                        total_early_success += 1
+                else:
+                    total_late_rounds += 1
+                    if round_data.get("success", False):
+                        total_late_success += 1
+
+                # 오답 및 타임아웃 카운트
+                if not round_data.get("success", False):
+                    total_wrong += 1
+
+                if round_data.get("timeout", False):
+                    total_timeout += 1
+
+        # 성공률 계산
+        early_success_rate = (total_early_success / total_early_rounds * 100) if total_early_rounds > 0 else 0
+        late_success_rate = (total_late_success / total_late_rounds * 100) if total_late_rounds > 0 else 0
+        error_rate = (total_wrong / total_rounds * 100) if total_rounds > 0 else 0
+        timeout_rate = (total_timeout / total_rounds * 100) if total_rounds > 0 else 0
+
+        return {
+            "early_success_rate": round(early_success_rate, 2),
+            "late_success_rate": round(late_success_rate, 2),
+            "error_rate": round(error_rate, 2),
+            "timeout_rate": round(timeout_rate, 2),
+        }
