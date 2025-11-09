@@ -94,6 +94,12 @@ class ReportStatusCheckService:
 
     def _outdated_result_game_ids(self):
         """최신 세션이 반영되지 않은 게임 ID 목록 조회"""
-        game_reports = self.report.game_reports.all().select_related("game")
+        game_report = self.report.game_reports.all().select_related("game")
+        outdated_game_ids = self._all_game_ids()
 
-        return [game_report.game_id for game_report in game_reports if not game_report.is_up_to_date()]
+        for gr in game_report:
+            latest_session_id = gr.get_actual_latest_session_id()
+            if gr.last_reflected_session_id == latest_session_id:
+                outdated_game_ids.remove(gr.game.id)
+
+        return outdated_game_ids
