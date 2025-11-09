@@ -44,6 +44,11 @@ class Game(BaseModel):
         blank=False,
         verbose_name=_("표시명"),
     )
+    max_round = models.IntegerField(
+        default=10,
+        verbose_name=_("최대 라운드"),
+        help_text="게임의 최대 라운드 수 (기본값: 10)",
+    )
     is_active = models.BooleanField(
         default=True,
         verbose_name=_("사용 여부"),
