@@ -125,7 +125,7 @@ class GameReport(BaseModel):
         """
         if self.total_play_actions_count == 0:
             return None
-        return self.total_reaction_ms_sum / self.total_play_actions_count
+        return int(self.total_reaction_ms_sum / self.total_play_actions_count)
 
     def get_wrong_rate(self):
         """
