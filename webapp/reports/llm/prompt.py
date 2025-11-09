@@ -10,6 +10,7 @@ under the key `"analysis"` in JSON format only.
 - 전체 플레이 횟수: 게임을 플레이한 총 횟수
 - 전체 플레이 라운드 수: 완료한 모든 라운드의 합계
 - 최대 도달 라운드 횟수: 게임의 최대 라운드까지 도달한 횟수
+- 평균 도달 라운드: 플레이당 평균 도달 라운드 수
 - 평균 반응시간: 액션당 평균 반응 속도 (밀리초)
 - 전체 플레이 액션 수: 성공 + 오답의 총 액션 수
 - 전체 성공 횟수: 올바른 반응의 총 횟수
@@ -51,6 +52,7 @@ KIDS_TRAFFIC_GAME_REPORT_USER_PROMPT = """
 - 전체 플레이 횟수: {total_plays_count}회
 - 전체 플레이 라운드 수: {total_play_rounds_count}라운드
 - 최대 도달 라운드 횟수: {max_rounds_count}회
+- 평균 도달 라운드: {avg_rounds_count}라운드
 - 평균 반응시간: {total_reaction_ms_avg}ms
 - 전체 플레이 액션 수: {total_play_actions_count}회
 - 전체 성공 횟수: {total_success_count}회
@@ -89,6 +91,7 @@ Use the following sequence memory game data to write Korean insights under `"ana
 - 전체 플레이 횟수: 게임을 플레이한 총 횟수
 - 전체 플레이 라운드 수: 완료한 모든 라운드의 합계
 - 최대 도달 라운드 횟수: 게임의 최대 라운드까지 도달한 횟수
+- 평균 도달 라운드: 플레이당 평균 도달 라운드 수
 - 전체 플레이 액션 수: 성공 + 오답의 총 액션 수
 - 전체 성공 횟수: 올바른 순서 입력의 총 횟수
 - 전체 오답 횟수: 잘못된 순서 입력의 총 횟수
@@ -129,6 +132,7 @@ BB_STAR_GAME_REPORT_USER_PROMPT = """
 - 전체 플레이 횟수: {total_plays_count}회
 - 전체 플레이 라운드 수: {total_play_rounds_count}라운드
 - 최대 도달 라운드 횟수: {max_rounds_count}회
+- 평균 도달 라운드: {avg_rounds_count}라운드
 - 전체 플레이 액션 수: {total_play_actions_count}회
 - 전체 성공 횟수: {total_success_count}회
 - 전체 오답 횟수: {total_wrong_count}회

@@ -26,6 +26,11 @@ class GameReportDetailSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    # 계산된 통계 필드
+    total_reaction_ms_avg = serializers.SerializerMethodField()
+    wrong_rate = serializers.SerializerMethodField()
+    avg_rounds_count = serializers.SerializerMethodField()
+
     class Meta:
         model = GameReport
         fields = [
@@ -34,7 +39,21 @@ class GameReportDetailSerializer(serializers.ModelSerializer):
             "game_code",
             "last_reflected_session_id",
             "is_up_to_date",
+            # 통계 컬럼
+            "total_plays_count",
+            "total_play_rounds_count",
+            "max_rounds_count",
+            "total_reaction_ms_sum",
+            "total_play_actions_count",
+            "total_success_count",
+            "total_wrong_count",
+            # 계산된 통계
+            "total_reaction_ms_avg",
+            "wrong_rate",
+            "avg_rounds_count",
+            # LLM 기반 데이터
             "advices",
+            # 타임스탬프
             "created_at",
             "updated_at",
         ]
@@ -43,3 +62,15 @@ class GameReportDetailSerializer(serializers.ModelSerializer):
     def get_is_up_to_date(self, obj):
         """게임 리포트가 최신 상태인지 확인"""
         return obj.is_up_to_date()
+
+    def get_total_reaction_ms_avg(self, obj):
+        """평균 반응시간"""
+        return obj.get_total_reaction_ms_avg()
+
+    def get_wrong_rate(self, obj):
+        """오답률"""
+        return obj.get_wrong_rate()
+
+    def get_avg_rounds_count(self, obj):
+        """평균 도달 라운드"""
+        return obj.get_avg_rounds_count()

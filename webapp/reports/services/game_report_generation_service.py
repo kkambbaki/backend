@@ -89,11 +89,13 @@ class GameReportGenerationService:
         # 통계 데이터 준비
         total_reaction_ms_avg = game_report.get_total_reaction_ms_avg()
         wrong_rate = game_report.get_wrong_rate()
+        avg_rounds_count = game_report.get_avg_rounds_count()
 
         statistics = {
             "total_plays_count": game_report.total_plays_count,
             "total_play_rounds_count": game_report.total_play_rounds_count,
             "max_rounds_count": game_report.max_rounds_count,
+            "avg_rounds_count": avg_rounds_count if avg_rounds_count is not None else 0,
             "total_reaction_ms_avg": total_reaction_ms_avg if total_reaction_ms_avg is not None else 0,
             "total_play_actions_count": game_report.total_play_actions_count,
             "total_success_count": game_report.total_success_count,

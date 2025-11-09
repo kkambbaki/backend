@@ -94,6 +94,7 @@ class KidsTrafficGameReportAdviceGenerator(ReportAdviceGenerator):
                 - total_plays_count: 전체 플레이 횟수
                 - total_play_rounds_count: 전체 플레이 라운드 수
                 - max_rounds_count: 최대 도달 라운드 횟수
+                - avg_rounds_count: 평균 도달 라운드
                 - total_reaction_ms_avg: 평균 반응시간 (밀리초)
                 - total_play_actions_count: 전체 플레이 액션 수
                 - total_success_count: 전체 성공 횟수
@@ -111,6 +112,7 @@ class KidsTrafficGameReportAdviceGenerator(ReportAdviceGenerator):
                         "total_plays_count": report_data.get("total_plays_count", 0),
                         "total_play_rounds_count": report_data.get("total_play_rounds_count", 0),
                         "max_rounds_count": report_data.get("max_rounds_count", 0),
+                        "avg_rounds_count": report_data.get("avg_rounds_count", 0),
                         "total_reaction_ms_avg": report_data.get("total_reaction_ms_avg", 0),
                         "total_play_actions_count": report_data.get("total_play_actions_count", 0),
                         "total_success_count": report_data.get("total_success_count", 0),
@@ -165,6 +167,7 @@ class BBStarGameReportAdviceGenerator(ReportAdviceGenerator):
                 - total_plays_count: 전체 플레이 횟수
                 - total_play_rounds_count: 전체 플레이 라운드 수
                 - max_rounds_count: 최대 도달 라운드 횟수
+                - avg_rounds_count: 평균 도달 라운드
                 - total_play_actions_count: 전체 플레이 액션 수
                 - total_success_count: 전체 성공 횟수
                 - total_wrong_count: 전체 오답 횟수
@@ -181,6 +184,7 @@ class BBStarGameReportAdviceGenerator(ReportAdviceGenerator):
                         "total_plays_count": report_data.get("total_plays_count", 0),
                         "total_play_rounds_count": report_data.get("total_play_rounds_count", 0),
                         "max_rounds_count": report_data.get("max_rounds_count", 0),
+                        "avg_rounds_count": report_data.get("avg_rounds_count", 0),
                         "total_play_actions_count": report_data.get("total_play_actions_count", 0),
                         "total_success_count": report_data.get("total_success_count", 0),
                         "total_wrong_count": report_data.get("total_wrong_count", 0),

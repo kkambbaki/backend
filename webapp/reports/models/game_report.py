@@ -138,6 +138,17 @@ class GameReport(BaseModel):
             return None
         return (self.total_wrong_count / self.total_play_actions_count) * 100
 
+    def get_avg_rounds_count(self):
+        """
+        평균 도달 라운드 계산
+
+        Returns:
+            float or None: 평균 도달 라운드, 플레이가 없으면 None
+        """
+        if self.total_plays_count == 0:
+            return None
+        return round(self.total_play_rounds_count / self.total_plays_count, 1)
+
     def get_actual_latest_session_id(self):
         """
         해당 게임의 최신 세션 조회
