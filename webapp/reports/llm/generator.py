@@ -43,35 +43,35 @@ class ReportAdviceGenerator(ABC):
         # 체인 생성
         self.chain = self.prompt | self.llm | self.parser
 
-        @abstractmethod
-        def generate_advice(self, report_data: dict) -> list:
-            """리포트 데이터를 기반으로 조언 생성
+    @abstractmethod
+    def generate_advice(self, report_data: dict) -> list:
+        """리포트 데이터를 기반으로 조언 생성
 
-            Args:
-                report_data: 리포트 정보를 담은 딕셔너리
+        Args:
+            report_data: 리포트 정보를 담은 딕셔너리
 
-            Returns:
-                생성된 조언 문자열 리스트
-            """
-            pass
+        Returns:
+            생성된 조언 문자열 리스트
+        """
+        pass
 
-        @abstractmethod
-        def get_prompt(self):
-            """특정 리포트 유형에 대한 프롬프트 템플릿을 가져옵니다.
+    @abstractmethod
+    def get_prompt(self):
+        """특정 리포트 유형에 대한 프롬프트 템플릿을 가져옵니다.
 
-            Returns:
-                ChatPromptTemplate 인스턴스
-            """
-            pass
+        Returns:
+            ChatPromptTemplate 인스턴스
+        """
+        pass
 
-        @abstractmethod
-        def get_response_model(self):
-            """LLM 응답을 파싱하기 위한 Pydantic 모델을 가져옵니다.
+    @abstractmethod
+    def get_response_model(self):
+        """LLM 응답을 파싱하기 위한 Pydantic 모델을 가져옵니다.
 
-            Returns:
-                Pydantic 모델 클래스
-            """
-            pass
+        Returns:
+            Pydantic 모델 클래스
+        """
+        pass
 
 
 class KidsTrafficGameReportAdviceGenerator(ReportAdviceGenerator):
