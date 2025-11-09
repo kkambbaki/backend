@@ -18,7 +18,6 @@ class BotTokenAdmin(ModelAdmin):
     list_filter = ("created_at",)
     search_fields = (
         "user__username",
-        "user__username",
         "user__email",
         "token",
     )
