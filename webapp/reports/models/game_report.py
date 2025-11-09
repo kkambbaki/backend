@@ -109,7 +109,7 @@ class GameReport(BaseModel):
         latest_session_id = self.get_actual_latest_session_id()
 
         if not latest_session_id:
-            return True
+            return False
 
         return self.last_reflected_session_id == latest_session_id
 
