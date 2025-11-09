@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 class ReportStatusChoice(models.TextChoices):
     NO_GAMES_PLAYED = "no_games_played", _("게임 미플레이")
-    NO_UP_TO_DATE = "no_up_to_date", _("최신 아님")
     PENDING = "pending", _("대기 중")
     GENERATING = "generating", _("진행 중")
     COMPLETED = "completed", _("완료")
