@@ -1,4 +1,4 @@
-name: Palette API CI
+name: CI
 
 on:
   push:
