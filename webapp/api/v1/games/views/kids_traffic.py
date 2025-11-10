@@ -53,7 +53,7 @@ class KidsTrafficStartAPIView(BaseAPIView):
                 response=GameStartResponseSerializer,
                 description="게임 세션 시작 성공. `session_id`를 저장하여 게임 종료 시 사용",
             ),
-            400: OpenApiResponse(description="이미 진행 중인 게임 세션이 있습니다."),
+            422: OpenApiResponse(description="이미 진행 중인 게임 세션이 있습니다."),
             404: OpenApiResponse(description="게임(꼬마 교통지킴이)이 활성화되어 있지 않거나 아이를 찾을 수 없습니다."),
         },
     )
@@ -136,7 +136,7 @@ class KidsTrafficFinishAPIView(BaseAPIView):
             "**주의사항:**\n"
             "- 교통지킴이 게임은 반응 시간 측정이 중요하므로 `reaction_ms_sum` 필드를 포함하는 것을 권장\n"
             "- `meta.round_details`의 각 라운드에도 `reaction_ms_sum` 필드를 포함할 수 있음\n"
-            "- 동일한 세션을 두 번 종료하려고 하면 400 에러가 발생"
+            "- 동일한 세션을 두 번 종료하려고 하면 422 에러가 발생"
         ),
         request=KidsTrafficFinishSerializer,
         responses={
@@ -156,7 +156,7 @@ class KidsTrafficFinishAPIView(BaseAPIView):
                 ),
             ),
             404: OpenApiResponse(description="세션을 찾을 수 없거나 접근 권한이 없습니다."),
-            400: OpenApiResponse(description="이미 완료된 세션입니다."),
+            422: OpenApiResponse(description="이미 완료된 세션입니다."),
         },
     )
     def post(self, request):

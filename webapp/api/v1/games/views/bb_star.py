@@ -44,7 +44,7 @@ class BBStarStartAPIView(BaseAPIView):
             "- `started_at`: 게임 시작 시각\n"
             "- `status`: 세션 상태 ('STARTED')\n\n"
             "**주의사항:**\n"
-            "- 동일한 아이에 대해 이미 진행 중인 게임 세션이 있으면 400 에러가 발생\n"
+            "- 동일한 아이에 대해 이미 진행 중인 게임 세션이 있으면 422 에러가 발생\n"
             "- 게임 종료 API 호출 시 반드시 이 API에서 받은 `session_id`를 사용해야 함"
         ),
         request=BBStarStartSerializer,
@@ -53,7 +53,7 @@ class BBStarStartAPIView(BaseAPIView):
                 response=GameStartResponseSerializer,
                 description="게임 세션 시작 성공. `session_id`를 저장하여 게임 종료 시 사용",
             ),
-            400: OpenApiResponse(description="이미 진행 중인 게임 세션이 있습니다."),
+            422: OpenApiResponse(description="이미 진행 중인 게임 세션이 있습니다."),
             404: OpenApiResponse(description="게임(뿅뿅 아기별)이 활성화되어 있지 않거나 아이를 찾을 수 없습니다."),
         },
     )
@@ -134,7 +134,7 @@ class BBStarFinishAPIView(BaseAPIView):
             "**주의사항:**\n"
             "- 뿅뿅아기별 게임은 시간 측정이 없으므로 `reaction_ms_sum` 필드를 보내지 않음\n"
             "- `meta.round_details`의 각 라운드에도 `reaction_ms_sum` 필드가 없음\n"
-            "- 동일한 세션을 두 번 종료하려고 하면 400 에러가 발생"
+            "- 동일한 세션을 두 번 종료하려고 하면 422 에러가 발생"
         ),
         request=BBStarFinishSerializer,
         responses={
@@ -153,7 +153,7 @@ class BBStarFinishAPIView(BaseAPIView):
                 ),
             ),
             404: OpenApiResponse(description="세션을 찾을 수 없거나 접근 권한이 없습니다."),
-            400: OpenApiResponse(description="이미 완료된 세션입니다."),
+            422: OpenApiResponse(description="이미 완료된 세션입니다."),
         },
     )
     def post(self, request):
