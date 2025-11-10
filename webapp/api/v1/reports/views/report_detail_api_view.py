@@ -1,12 +1,13 @@
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from reports.authentication import ReportBotAuthentication
-from reports.models import Report
+from reports.models import Report, ReportPin
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from api.v1.reports.serializers import ReportDetailSerializer
+from api.v1.reports.serializers import ReportDetailSerializer, ReportPinVerificationSerializer
 from common.exceptions.not_found_error import NotFoundError
+from common.exceptions.validation_error import ValidationError
 from common.permissions.active_user_permission import ActiveUserPermission
 from common.views import BaseAPIView
 
@@ -20,19 +21,37 @@ class ReportDetailAPIView(BaseAPIView):
     permission_classes = [ActiveUserPermission]
 
     @extend_schema(
-        operation_id="get_report_detail",
+        operation_id="post_report_detail",
         summary="리포트 상세 조회",
-        description="특정 아동에 대한 리포트 상세 정보를 조회합니다.",
+        description="특정 아동에 대한 리포트 상세 정보를 조회합니다. JWT 인증 사용 시 PIN 번호가 필요하며, Bot 인증 사용 시 PIN 검증을 건너뜁니다.",
+        request=ReportPinVerificationSerializer,
         responses={
             200: OpenApiResponse(
                 response=ReportDetailSerializer,
                 description="리포트 조회 성공",
             ),
+            400: OpenApiResponse(description="잘못된 PIN 번호"),
             404: OpenApiResponse(description="리포트를 찾을 수 없음"),
         },
     )
-    def get(self, request):
-        """리포트 상세 조회"""
+    def post(self, request):
+        """리포트 상세 조회 (PIN 인증)"""
+        # JWT 인증일 경우에만 PIN 검증 진행
+        if not isinstance(request.successful_authenticator, ReportBotAuthentication):
+            try:
+                report_pin = ReportPin.objects.get(user=request.user)
+
+                # PIN이 설정되어 있으면 검증 수행
+                pin_serializer = ReportPinVerificationSerializer(data=request.data)
+                pin_serializer.is_valid(raise_exception=True)
+
+                pin = pin_serializer.validated_data["pin"]
+                if not report_pin.verify_pin(pin):
+                    raise ValidationError(message="잘못된 PIN 번호입니다.")
+            except ReportPin.DoesNotExist:
+                # PIN이 설정되지 않은 경우 검증 스킵
+                pass
+
         # 아동 확인
         user = request.user
         child = user.child
