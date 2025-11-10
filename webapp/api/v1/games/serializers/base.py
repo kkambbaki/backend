@@ -121,21 +121,8 @@ class GameFinishSerializer(serializers.Serializer):
     )
 
 
-class GameFinishResponseSerializer(serializers.Serializer):
-    """게임 종료 응답 공통 Serializer"""
-
-    session_id = serializers.UUIDField(read_only=True)
-    game_code = serializers.CharField(read_only=True)
-    score = serializers.IntegerField(read_only=True)
-    wrong_count = serializers.IntegerField(read_only=True)
-    reaction_ms_sum = serializers.IntegerField(read_only=True, allow_null=True)
-    round_count = serializers.IntegerField(read_only=True, allow_null=True)
-    success_count = serializers.IntegerField(read_only=True, allow_null=True)
-    meta = serializers.JSONField(read_only=True, allow_null=True)
-
-
-class BBStarFinishResponseSerializer(serializers.Serializer):
-    """뿅뿅 아기별 게임 종료 응답 Serializer (시간 관련 필드 제외)"""
+class BaseGameFinishResponseSerializer(serializers.Serializer):
+    """게임 종료 응답 기본 Serializer (공통 필드)"""
 
     session_id = serializers.UUIDField(
         read_only=True,
@@ -143,7 +130,7 @@ class BBStarFinishResponseSerializer(serializers.Serializer):
     )
     game_code = serializers.CharField(
         read_only=True,
-        help_text="게임 코드 ('BB_STAR')",
+        help_text="게임 코드",
     )
     score = serializers.IntegerField(
         read_only=True,
@@ -166,25 +153,41 @@ class BBStarFinishResponseSerializer(serializers.Serializer):
     meta = serializers.JSONField(
         read_only=True,
         allow_null=True,
+        help_text="라운드별 상세 데이터 (JSON 객체)",
+    )
+
+
+class GameFinishResponseSerializer(BaseGameFinishResponseSerializer):
+    """게임 종료 응답 공통 Serializer (모든 필드 포함)"""
+
+    reaction_ms_sum = serializers.IntegerField(
+        read_only=True,
+        allow_null=True,
+        help_text="게임 전체 반응시간 합계 (Integer, 밀리초 단위)",
+    )
+
+
+class BBStarFinishResponseSerializer(BaseGameFinishResponseSerializer):
+    """뿅뿅 아기별 게임 종료 응답 Serializer (시간 관련 필드 제외)"""
+
+    game_code = serializers.CharField(
+        read_only=True,
+        help_text="게임 코드 ('BB_STAR')",
+    )
+    meta = serializers.JSONField(
+        read_only=True,
+        allow_null=True,
         help_text="라운드별 상세 데이터 (JSON 객체). 뿅뿅아기별 게임은 시간 측정이 없으므로 "
         "round_details에 'reaction_ms_sum' 필드가 포함되지 않음",
     )
 
 
-class KidsTrafficFinishResponseSerializer(serializers.Serializer):
+class KidsTrafficFinishResponseSerializer(BaseGameFinishResponseSerializer):
     """꼬마 교통지킴이 게임 종료 응답 Serializer"""
 
-    session_id = serializers.UUIDField(
-        read_only=True,
-        help_text="게임 세션 고유 식별자 (UUID)",
-    )
     game_code = serializers.CharField(
         read_only=True,
         help_text="게임 코드 ('KIDS_TRAFFIC')",
-    )
-    score = serializers.IntegerField(
-        read_only=True,
-        help_text="게임 전체 총 점수 (Integer)",
     )
     wrong_count = serializers.IntegerField(
         read_only=True,
@@ -194,16 +197,6 @@ class KidsTrafficFinishResponseSerializer(serializers.Serializer):
         read_only=True,
         allow_null=True,
         help_text="게임 전체 반응시간 합계 (Integer, 밀리초 단위). " "신호등 변화에 대한 반응 시간을 측정한 값",
-    )
-    round_count = serializers.IntegerField(
-        read_only=True,
-        allow_null=True,
-        help_text="게임 전체 라운드 수 (Integer, 최대 10라운드)",
-    )
-    success_count = serializers.IntegerField(
-        read_only=True,
-        allow_null=True,
-        help_text="게임 전체 성공한 라운드 수 (Integer)",
     )
     meta = serializers.JSONField(
         read_only=True,
