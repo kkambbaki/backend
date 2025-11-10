@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from reports.models import GameReport
 from rest_framework import serializers
 
@@ -59,18 +60,22 @@ class GameReportDetailSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
-    def get_is_up_to_date(self, obj):
+    @extend_schema_field(serializers.BooleanField)
+    def get_is_up_to_date(self, obj) -> bool:
         """게임 리포트가 최신 상태인지 확인"""
         return obj.is_up_to_date()
 
-    def get_total_reaction_ms_avg(self, obj):
+    @extend_schema_field(serializers.IntegerField(allow_null=True))
+    def get_total_reaction_ms_avg(self, obj) -> int | None:
         """평균 반응시간"""
         return obj.get_total_reaction_ms_avg()
 
-    def get_wrong_rate(self, obj):
+    @extend_schema_field(serializers.FloatField(allow_null=True))
+    def get_wrong_rate(self, obj) -> float | None:
         """오답률"""
         return obj.get_wrong_rate()
 
-    def get_avg_rounds_count(self, obj):
+    @extend_schema_field(serializers.FloatField(allow_null=True))
+    def get_avg_rounds_count(self, obj) -> float | None:
         """평균 도달 라운드"""
         return obj.get_avg_rounds_count()

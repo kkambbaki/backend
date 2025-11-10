@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .user_detail_serializer import UserDetailSerializer
@@ -12,7 +13,8 @@ class JWTSerializer(serializers.Serializer):
     refresh = serializers.CharField()
     user = serializers.SerializerMethodField()
 
-    def get_user(self, obj):
+    @extend_schema_field(UserDetailSerializer)
+    def get_user(self, obj) -> dict:
         return UserDetailSerializer(obj["user"], context=self.context).data
 
     class Meta:

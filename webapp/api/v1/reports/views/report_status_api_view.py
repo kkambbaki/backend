@@ -19,6 +19,7 @@ class ReportStatusAPIView(BaseAPIView):
         JWTAuthentication,
     ]
     permission_classes = [ActiveUserPermission]
+    serializer_class = ReportStatusSerializer
 
     @extend_schema(
         operation_id="get_report_status",
