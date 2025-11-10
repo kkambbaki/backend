@@ -1,3 +1,4 @@
+from drf_spectacular.extensions import OpenApiAuthenticationExtension
 from rest_framework import authentication, exceptions
 
 from users.models import BotToken
@@ -87,3 +88,23 @@ class ReportBotAuthentication(authentication.BaseAuthentication):
             str: WWW-Authenticate 헤더 값
         """
         return self.keyword
+
+
+class ReportBotAuthenticationScheme(OpenApiAuthenticationExtension):
+    """
+    drf-spectacular를 위한 ReportBotAuthentication 스키마 확장
+    """
+
+    target_class = "reports.authentication.ReportBotAuthentication"
+    name = "ReportBotAuthentication"
+
+    def get_security_definition(self, auto_schema):  # noqa: ARG002
+        """
+        OpenAPI 스키마의 보안 정의를 반환합니다.
+        """
+        return {
+            "type": "apiKey",
+            "in": "header",
+            "name": "X-BOT-TOKEN",
+            "description": "BOT 토큰을 사용한 인증. 쿼리 파라미터 BOT_TOKEN으로도 전달 가능합니다.",
+        }
