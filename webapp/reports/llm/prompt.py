@@ -52,7 +52,8 @@ KIDS_TRAFFIC_GAME_REPORT_USER_PROMPT = """
 게임 결과:
 - 전체 플레이 횟수: {total_plays_count}회
 - 전체 플레이 라운드 수: {total_play_rounds_count}라운드
-- 최대 도달 라운드 횟수: {max_rounds_count}회
+- 최대 라운드 도달 횟수: {max_rounds_count}회
+- 최대 라운드 도달 비율: {max_rounds_ratio}%
 - 평균 도달 라운드: {avg_rounds_count}라운드
 - 평균 반응시간: {total_reaction_ms_avg}ms
 - 전체 플레이 액션 수: {total_play_actions_count}회
@@ -134,7 +135,8 @@ BB_STAR_GAME_REPORT_USER_PROMPT = """
 게임 결과:
 - 전체 플레이 횟수: {total_plays_count}회
 - 전체 플레이 라운드 수: {total_play_rounds_count}라운드
-- 최대 도달 라운드 횟수: {max_rounds_count}회
+- 최대 라운드 도달 횟수: {max_rounds_count}회
+- 최대 라운드 도달 비율: {max_rounds_ratio}%
 - 평균 도달 라운드: {avg_rounds_count}라운드
 - 전체 플레이 액션 수: {total_play_actions_count}회
 - 전체 성공 횟수: {total_success_count}회

@@ -136,7 +136,7 @@ class GameReport(BaseModel):
         """
         if self.total_play_actions_count == 0:
             return None
-        return (self.total_wrong_count / self.total_play_actions_count) * 100
+        return round((self.total_wrong_count / self.total_play_actions_count) * 100, 1)
 
     def get_avg_rounds_count(self):
         """
@@ -168,6 +168,17 @@ class GameReport(BaseModel):
         )
 
         return latest_result.session.id if latest_result else None
+
+    def get_max_rounds_ratio(self):
+        """
+        최대 라운드 도달 비율 계산 (%)
+
+        Returns:
+            float or None: 최대 라운드 도달 비율 (%), 플레이가 없으면 None
+        """
+        if self.total_plays_count == 0:
+            return None
+        return round((self.max_rounds_count / self.total_plays_count) * 100, 1)
 
     def is_up_to_date(self):
         """
