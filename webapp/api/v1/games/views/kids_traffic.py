@@ -36,8 +36,6 @@ class KidsTrafficStartAPIView(BaseAPIView):
             "- 최대 10라운드까지 진행되며, 각 라운드마다 신호등 변화 속도가 빨라짐\n"
             "- 신호등에 맞지 않는 버튼을 누르면 실패 횟수가 증가하며, 3회 실패 시 게임 종료\n"
             "- 반응 시간을 측정하여 집중력과 반응 속도를 평가\n\n"
-            "**요청 필드:**\n"
-            "- `child_id` (필수): 게임을 플레이할 아이의 ID\n\n"
             "**응답 필드:**\n"
             "- `session_id`: 게임 종료 API 호출 시 필요한 세션 ID (UUID)\n"
             "- `game_code`: 게임 코드 ('KIDS_TRAFFIC')\n"
@@ -63,7 +61,7 @@ class KidsTrafficStartAPIView(BaseAPIView):
             game = get_object_or_404(Game.objects.by_code(GameCodeChoice.KIDS_TRAFFIC))
         except Http404:
             raise NotFoundError(message="게임( KIDS_TRAFFIC, 꼬마 교통지킴이 )이 활성화되어 있지 않습니다.")
-        
+
         if not hasattr(request.user, "child"):
             raise NotFoundError(message="등록된 자녀 정보가 없습니다.")
         child = request.user.child

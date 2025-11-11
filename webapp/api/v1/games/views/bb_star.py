@@ -35,8 +35,6 @@ class BBStarStartAPIView(BaseAPIView):
             "- 깜빡이는 별의 순서를 기억하고 올바른 순서로 클릭하는 게임\n"
             "- 최대 10라운드까지 진행되며, 각 라운드마다 별의 개수가 증가\n"
             "- 시간 제한이 있으며, 시간 내에 올바른 순서로 클릭해야 함\n\n"
-            "**요청 필드:**\n"
-            "- `child_id` (필수): 게임을 플레이할 아이의 ID\n\n"
             "**응답 필드:**\n"
             "- `session_id`: 게임 종료 API 호출 시 필요한 세션 ID (UUID)\n"
             "- `game_code`: 게임 코드 ('BB_STAR')\n"
@@ -62,7 +60,7 @@ class BBStarStartAPIView(BaseAPIView):
             game = get_object_or_404(Game.objects.by_code(GameCodeChoice.BB_STAR))
         except Http404:
             raise NotFoundError(message="게임( BB_STAR, 뿅뿅 아기별 게임 )이 활성화되어 있지 않습니다.")
-        
+
         if not hasattr(request.user, "child"):
             raise NotFoundError(message="등록된 자녀 정보가 없습니다.")
         child = request.user.child

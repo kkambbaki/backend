@@ -4,10 +4,7 @@ from rest_framework import serializers
 class GameStartSerializer(serializers.Serializer):
     """게임 시작 공통 Serializer"""
 
-    child_id = serializers.IntegerField(
-        required=True,
-        help_text="게임을 플레이할 아이의 ID (Integer)",
-    )
+    pass
 
 
 class GameStartResponseSerializer(serializers.Serializer):
