@@ -62,10 +62,10 @@ class BBStarStartAPIView(BaseAPIView):
             game = get_object_or_404(Game.objects.by_code(GameCodeChoice.BB_STAR))
         except Http404:
             raise NotFoundError(message="게임( BB_STAR, 뿅뿅 아기별 게임 )이 활성화되어 있지 않습니다.")
-        child = request.user.child
-
-        if not child:
+        
+        if not hasattr(request.user, "child"):
             raise NotFoundError(message="등록된 자녀 정보가 없습니다.")
+        child = request.user.child
 
         session = GameSession.objects.create(
             parent=request.user,

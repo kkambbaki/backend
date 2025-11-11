@@ -63,10 +63,10 @@ class KidsTrafficStartAPIView(BaseAPIView):
             game = get_object_or_404(Game.objects.by_code(GameCodeChoice.KIDS_TRAFFIC))
         except Http404:
             raise NotFoundError(message="게임( KIDS_TRAFFIC, 꼬마 교통지킴이 )이 활성화되어 있지 않습니다.")
-        child = request.user.child
-
-        if not child:
+        
+        if not hasattr(request.user, "child"):
             raise NotFoundError(message="등록된 자녀 정보가 없습니다.")
+        child = request.user.child
 
         session = GameSession.objects.create(
             parent=request.user,
