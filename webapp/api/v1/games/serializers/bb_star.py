@@ -8,6 +8,9 @@ class BBStarStartSerializer(GameStartSerializer):
 
 
 class BBStarFinishSerializer(GameFinishSerializer):
-    """뿅뿅 아기별 게임 종료 Serializer"""
+    """뿅뿅 아기별 게임 종료 Serializer (시간 관련 필드 제외)"""
 
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # reaction_ms_sum 필드 제거
+        self.fields.pop("reaction_ms_sum", None)
