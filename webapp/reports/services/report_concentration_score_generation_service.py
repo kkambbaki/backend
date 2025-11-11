@@ -14,7 +14,7 @@ RECENT_GAMES_COUNT = 2
 # 게임별 최대 총 액션 수 (전체 라운드 완벽 플레이 시)
 GAME_MAX_TOTAL_ACTIONS = {
     GameCodeChoice.KIDS_TRAFFIC: 50,  # 10라운드 * 5액션/라운드
-    GameCodeChoice.BB_STAR: 55,
+    GameCodeChoice.BB_STAR: 69,  # 3 4 5 6 7 8 9 9 9 9
 }
 
 # 점수 계산 가중치 (총 110%, 100점 초과 시 커팅)
