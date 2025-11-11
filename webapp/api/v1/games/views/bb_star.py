@@ -20,7 +20,6 @@ from common.exceptions.not_found_error import NotFoundError
 from common.exceptions.validation_error import ValidationError
 from common.permissions.active_user_permission import ActiveUserPermission
 from common.views import BaseAPIView
-from users.models.child import Child
 
 
 @extend_schema(tags=["게임 - 뿅뿅 아기별"])
@@ -58,13 +57,15 @@ class BBStarStartAPIView(BaseAPIView):
     def post(self, request):
         serializer = BBStarStartSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        child_id = serializer.validated_data["child_id"]
 
         try:
             game = get_object_or_404(Game.objects.by_code(GameCodeChoice.BB_STAR))
         except Http404:
             raise NotFoundError(message="게임( BB_STAR, 뿅뿅 아기별 게임 )이 활성화되어 있지 않습니다.")
-        child = get_object_or_404(Child, id=child_id)
+        
+        if not hasattr(request.user, "child"):
+            raise NotFoundError(message="등록된 자녀 정보가 없습니다.")
+        child = request.user.child
 
         session = GameSession.objects.create(
             parent=request.user,
