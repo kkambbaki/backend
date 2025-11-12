@@ -22,9 +22,6 @@ class GameReportGenerationService:
         """
         특정 게임에 대한 GameReport 업데이트 또는 생성
 
-        통계 집계는 트랜잭션 내에서 수행하고,
-        LLM 조언 생성은 트랜잭션 외부에서 수행하여 DB 커넥션 효율화
-
         Args:
             report: Report 객체
             game: Game 객체
@@ -32,10 +29,8 @@ class GameReportGenerationService:
         Returns:
             GameReport 객체
         """
-        # 1단계: 트랜잭션 내에서 통계 집계 및 저장
         game_report = GameReportGenerationService._update_game_report_statistics(report, game)
 
-        # 2단계: 트랜잭션 외부에서 LLM 조언 생성
         if game_report and game_report.total_plays_count > 0:
             GameReportGenerationService._generate_game_report_advice(game_report, game)
 
@@ -45,7 +40,7 @@ class GameReportGenerationService:
     @transaction.atomic
     def _update_game_report_statistics(report, game):
         """
-        GameReport의 통계 데이터를 집계하고 저장 (트랜잭션 내에서 수행)
+        GameReport의 통계 데이터를 집계하고 저장
 
         Args:
             report: Report 객체
@@ -115,6 +110,9 @@ class GameReportGenerationService:
             "total_plays_count": game_report.total_plays_count,
             "total_play_rounds_count": game_report.total_play_rounds_count,
             "max_rounds_count": game_report.max_rounds_count,
+            "max_rounds_ratio": (
+                game_report.get_max_rounds_ratio() if game_report.get_max_rounds_ratio() is not None else 0
+            ),
             "avg_rounds_count": avg_rounds_count if avg_rounds_count is not None else 0,
             "total_reaction_ms_avg": total_reaction_ms_avg if total_reaction_ms_avg is not None else 0,
             "total_play_actions_count": game_report.total_play_actions_count,

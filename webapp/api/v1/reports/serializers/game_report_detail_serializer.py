@@ -31,6 +31,11 @@ class GameReportDetailSerializer(serializers.ModelSerializer):
     total_reaction_ms_avg = serializers.SerializerMethodField()
     wrong_rate = serializers.SerializerMethodField()
     avg_rounds_count = serializers.SerializerMethodField()
+    max_rounds_ratio = serializers.FloatField(
+        source="get_max_rounds_ratio",
+        read_only=True,
+        allow_null=True,
+    )
 
     class Meta:
         model = GameReport
@@ -52,6 +57,7 @@ class GameReportDetailSerializer(serializers.ModelSerializer):
             "total_reaction_ms_avg",
             "wrong_rate",
             "avg_rounds_count",
+            "max_rounds_ratio",
             # LLM 기반 데이터
             "advices",
             # 타임스탬프
@@ -79,3 +85,8 @@ class GameReportDetailSerializer(serializers.ModelSerializer):
     def get_avg_rounds_count(self, obj) -> float | None:
         """평균 도달 라운드"""
         return obj.get_avg_rounds_count()
+
+    @extend_schema_field(serializers.FloatField(allow_null=True))
+    def get_max_rounds_ratio(self, obj) -> float | None:
+        """최대 라운드 도달 비율"""
+        return obj.get_max_rounds_ratio()

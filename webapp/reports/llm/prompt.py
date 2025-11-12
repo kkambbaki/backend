@@ -33,6 +33,7 @@ under the key `"analysis"` in JSON format only.
 - 설명은 2문장 이내로 작성하세요.
 - 긍정적인 피드백도 포함하고, 모든 결과는 JSON 형식으로 다음 구조만 반환하세요:
 - 최근 플레이 경험은 아이의 현재 인지 상태가 어떻게 변화해가는지를 반영합니다.
+- 여러 게임 플레이에 대한 통계를 종합적으로 고려하세요.
 
 {{
   "analysis": [
@@ -52,7 +53,8 @@ KIDS_TRAFFIC_GAME_REPORT_USER_PROMPT = """
 게임 결과:
 - 전체 플레이 횟수: {total_plays_count}회
 - 전체 플레이 라운드 수: {total_play_rounds_count}라운드
-- 최대 도달 라운드 횟수: {max_rounds_count}회
+- 최대 라운드 도달 횟수: {max_rounds_count}회
+- 최대 라운드 도달 비율: {max_rounds_ratio}%
 - 평균 도달 라운드: {avg_rounds_count}라운드
 - 평균 반응시간: {total_reaction_ms_avg}ms
 - 전체 플레이 액션 수: {total_play_actions_count}회
@@ -115,6 +117,7 @@ Use the following sequence memory game data to write Korean insights under `"ana
 - 제목은 30글자 이내의 문장으로 작성하세요.
 - 설명은 2문장 이내로 작성하세요.
 - 긍정적인 피드백도 포함하고, 모든 결과는 JSON 형식으로 다음 구조만 반환하세요:
+- 여러 게임 플레이에 대한 통계를 종합적으로 고려하세요.
 
 {{
   "analysis": [
@@ -134,7 +137,8 @@ BB_STAR_GAME_REPORT_USER_PROMPT = """
 게임 결과:
 - 전체 플레이 횟수: {total_plays_count}회
 - 전체 플레이 라운드 수: {total_play_rounds_count}라운드
-- 최대 도달 라운드 횟수: {max_rounds_count}회
+- 최대 라운드 도달 횟수: {max_rounds_count}회
+- 최대 라운드 도달 비율: {max_rounds_ratio}%
 - 평균 도달 라운드: {avg_rounds_count}라운드
 - 전체 플레이 액션 수: {total_play_actions_count}회
 - 전체 성공 횟수: {total_success_count}회
