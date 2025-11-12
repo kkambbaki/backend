@@ -15,6 +15,7 @@ urlpatterns = [
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("api/", include("api.urls")),
+    path("games/", include("games.urls")),
 ]
 
 if settings.DEBUG:
