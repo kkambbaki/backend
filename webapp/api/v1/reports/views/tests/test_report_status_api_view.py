@@ -202,7 +202,8 @@ class ReportStatusAPIViewTests(TestCase):
         self.assertIn("status", response.data)
         self.assertIn("description", response.data)
 
-    def test_report_status_multiple_games(self):
+    @patch("reports.services.report_status_check_service.generate_report_task.delay")
+    def test_report_status_multiple_games(self, mock_task):
         """여러 게임 플레이 시 상태 테스트"""
         game2 = Game.objects.create(
             name="Game 2",
