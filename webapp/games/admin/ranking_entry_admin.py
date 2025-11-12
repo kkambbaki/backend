@@ -221,16 +221,16 @@ class RankingEntryAdmin(ModelAdmin):
         )
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        """GameResult 및 Game 선택 시 뿅뿅 아기별 게임만 필터링"""
+        """GameResult 및 Game 선택 시 아기별 게임과 교통 게임 필터링"""
         if db_field.name == "game_result":
-            # 뿅뿅 아기별 게임의 결과만 필터링
+            # 아기별 게임과 교통 게임의 결과만 필터링
             kwargs["queryset"] = db_field.remote_field.model.objects.filter(
-                game__code=GameCodeChoice.BB_STAR
+                game__code__in=[GameCodeChoice.BB_STAR, GameCodeChoice.KIDS_TRAFFIC]
             ).select_related("game", "child")
         elif db_field.name == "game":
-            # 뿅뿅 아기별 게임만 선택 가능
+            # 아기별 게임과 교통 게임만 선택 가능
             kwargs["queryset"] = db_field.remote_field.model.objects.filter(
-                code=GameCodeChoice.BB_STAR
+                code__in=[GameCodeChoice.BB_STAR, GameCodeChoice.KIDS_TRAFFIC]
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
