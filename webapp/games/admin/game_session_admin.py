@@ -141,9 +141,10 @@ class GameSessionAdmin(ModelAdmin):
     def status_display(self, obj):
         """상태 표시 (색상 포함)"""
         color_map = {
-            "STARTED": "#2196F3",
-            "COMPLETED": "#4CAF50",
-            "ABANDONED": "#F44336",
+            "STARTED": "#2196F3",  # Blue
+            "COMPLETED": "#4CAF50",  # Green
+            "GAME_OVER": "#FF9800",  # Orange
+            "FORFEIT": "#F44336",  # Red
         }
         color = color_map.get(obj.status, "#000000")
         return format_html(

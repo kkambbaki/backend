@@ -54,9 +54,9 @@ class ReportDetailAPIView(BaseAPIView):
 
         # 아동 확인
         user = request.user
-        child = user.child
-
-        if not child:
+        try:
+            child = user.child
+        except Exception:
             raise NotFoundError(message="등록된 자녀 정보가 없습니다.")
 
         # 리포트 조회
