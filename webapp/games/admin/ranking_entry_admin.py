@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import F, Max, Q, Window
+from django.db.models.functions import Rank
 from django.utils.html import format_html
 
 from games.choices import GameCodeChoice
@@ -102,22 +103,24 @@ class RankingEntryAdmin(ModelAdmin):
     actions = ["clear_event_highlights", "reset_rankings"]
 
     def rank_display(self, obj):
-        """랭킹 순위 표시 (게임별로 계산)"""
-        # 게임별로 필터링된 쿼리셋 사용
-        queryset = self.get_queryset(None).filter(game=obj.game) if obj.game else self.get_queryset(None)
-        # 같은 점수와 라운드를 가진 항목들 중에서의 순위 계산
-        rank = (
-            queryset.filter(
-                Q(score__gt=obj.score)
-                | Q(score=obj.score, round_count__gt=obj.round_count)
-                | Q(
-                    score=obj.score,
-                    round_count=obj.round_count,
-                    created_at__lt=obj.created_at,
-                )
-            ).count()
-            + 1
-        )
+        """랭킹 순위 표시 (게임별로 계산) - Window function으로 미리 계산된 rank 사용"""
+        # Window function으로 미리 계산된 rank 사용
+        rank = getattr(obj, "rank", None)
+        if rank is None:
+            # fallback: annotation이 없는 경우 기존 방식 사용
+            queryset = self.get_queryset(None).filter(game=obj.game) if obj.game else self.get_queryset(None)
+            rank = (
+                queryset.filter(
+                    Q(score__gt=obj.score)
+                    | Q(score=obj.score, round_count__gt=obj.round_count)
+                    | Q(
+                        score=obj.score,
+                        round_count=obj.round_count,
+                        created_at__lt=obj.created_at,
+                    )
+                ).count()
+                + 1
+            )
 
         if rank == 1:
             return format_html(
@@ -153,9 +156,12 @@ class RankingEntryAdmin(ModelAdmin):
     game_info.admin_order_field = "game__name"
 
     def score_display(self, obj):
-        """점수 표시 (색상 포함)"""
-        # 최고점인지 확인
-        top_score = RankingEntry.objects.get_top_score(obj.game) if obj.game else 0
+        """점수 표시 (색상 포함) - Window function으로 미리 계산된 top_score 사용"""
+        # Window function으로 미리 계산된 top_score_in_game 사용
+        top_score = getattr(obj, "top_score_in_game", None)
+        if top_score is None:
+            # fallback: annotation이 없는 경우 기존 방식 사용
+            top_score = RankingEntry.objects.get_top_score(obj.game) if obj.game else 0
 
         if obj.score == top_score and obj.score > 0:
             return format_html(
@@ -196,9 +202,23 @@ class RankingEntryAdmin(ModelAdmin):
     contact_info.short_description = "연락처"
 
     def get_queryset(self, request):
-        """쿼리셋 최적화"""
+        """쿼리셋 최적화 - Window function으로 rank와 top_score 미리 계산"""
         queryset = super().get_queryset(request)
-        return queryset.select_related("game", "game_result")
+        return queryset.select_related("game", "game_result").annotate(
+            rank=Window(
+                expression=Rank(),
+                partition_by=[F("game_id")],
+                order_by=[
+                    F("score").desc(),
+                    F("round_count").desc(),
+                    F("created_at").asc(),
+                ],
+            ),
+            top_score_in_game=Window(
+                expression=Max("score"),
+                partition_by=[F("game_id")],
+            ),
+        )
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """GameResult 및 Game 선택 시 뿅뿅 아기별 게임만 필터링"""
