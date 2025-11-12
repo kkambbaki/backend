@@ -192,6 +192,9 @@ omit = [
     "manage.py",
     "*/settings/*",
     "*/tests/*",
+    "*/apps.py",
+    "*/wsgi.py",
+    "*/asgi.py",
 ]
 
 [tool.coverage.report]

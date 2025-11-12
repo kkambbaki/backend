@@ -78,7 +78,7 @@ jobs:
         working-directory: webapp
         run: |
           uv run pip install coverage
-          uv run coverage run --source='.' manage.py test
+          uv run coverage run manage.py test
           uv run coverage report
           uv run coverage html
 
