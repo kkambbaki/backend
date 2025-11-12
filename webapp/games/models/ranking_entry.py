@@ -10,12 +10,7 @@ class RankingEntryManager(BaseModelManager):
 
     def top_scores(self, game, limit=10):
         """게임별 상위 점수 조회"""
-        return (
-            self.filter(game=game)
-            .order_by("-score", "-round_count", "created_at")
-            .select_related("game")
-            [:limit]
-        )
+        return self.filter(game=game).order_by("-score", "-round_count", "created_at").select_related("game")[:limit]
 
     def get_top_score(self, game):
         """게임별 최고점 조회"""
@@ -83,6 +78,13 @@ class RankingEntry(BaseModel):
         verbose_name=_("연락처"),
         help_text="참가자 연락처 (선택)",
     )
+    organization = models.CharField(
+        max_length=30,
+        null=True,
+        blank=True,
+        verbose_name=_("소속"),
+        help_text="참가자 소속 (학교, 회사 등)",
+    )
     is_event_highlighted = models.BooleanField(
         default=False,
         verbose_name=_("이벤트 하이라이트"),
@@ -97,4 +99,3 @@ class RankingEntry(BaseModel):
 
     def __str__(self):
         return f"{self.player_name} - {self.game.name} (점수: {self.score})"
-

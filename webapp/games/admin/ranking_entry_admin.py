@@ -1,5 +1,4 @@
-from django.contrib import admin
-from django.contrib import messages
+from django.contrib import admin, messages
 from django.db.models import F, Max, Q, Window
 from django.db.models.functions import Rank
 from django.utils.html import format_html
@@ -16,6 +15,7 @@ class RankingEntryAdmin(ModelAdmin):
     list_display = (
         "rank_display",
         "player_name",
+        "organization",
         "game_info",
         "score_display",
         "round_count",
@@ -30,6 +30,7 @@ class RankingEntryAdmin(ModelAdmin):
     )
     search_fields = (
         "player_name",
+        "organization",
         "game__name",
         "game__code",
         "contact_info",
@@ -58,9 +59,10 @@ class RankingEntryAdmin(ModelAdmin):
             {
                 "fields": (
                     "player_name",
+                    "organization",
                     "contact_info",
                 ),
-                "description": "데모부스에서 참가자가 입력한 이름과 연락처를 입력하세요.",
+                "description": "데모부스에서 참가자가 입력한 이름, 소속, 연락처를 입력하세요.",
             },
         ),
         (
@@ -277,9 +279,7 @@ class RankingEntryAdmin(ModelAdmin):
         if obj.game and obj.score > 0:
             # 현재 게임의 최고점 조회 (자기 자신 포함)
             top_entry = (
-                RankingEntry.objects.filter(game=obj.game)
-                .order_by("-score", "-round_count", "created_at")
-                .first()
+                RankingEntry.objects.filter(game=obj.game).order_by("-score", "-round_count", "created_at").first()
             )
 
             # 자신이 최고점이면 하이라이트 설정
@@ -299,4 +299,3 @@ class RankingEntryAdmin(ModelAdmin):
 
                     obj.event_triggered_at = timezone.now()
                     obj.save(update_fields=["is_event_highlighted", "event_triggered_at"])
-
