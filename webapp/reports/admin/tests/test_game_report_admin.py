@@ -423,8 +423,6 @@ class GameReportAdviceInlineTests(TestCase):
         """readonly_fields 설정 테스트"""
         expected_fields = (
             "game",
-            "title",
-            "description",
             "error_message",
             "created_at",
         )
