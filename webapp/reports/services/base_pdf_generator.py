@@ -49,7 +49,7 @@ class BasePDFGenerator(ABC):
         Returns:
             dict: {"width": int, "height": int}
         """
-        return {"width": 3840, "height": 1080}
+        return {"width": 1920, "height": 1080}
 
     def get_pdf_format(self) -> str:
         """
