@@ -98,5 +98,5 @@ class GameResult(BaseModel):
         id = self.id if self.id else "Unsaved"
         child_name = self.child.name if self.child else "Unknown Child"
         game_name = self.game.name if self.game else "Unknown Game"
-        date = self.created_at.strftime("%Y-%m-%d %H:%M")
+        date = self.created_at.strftime("%Y-%m-%d %H:%M") if self.created_at else "Unsaved"
         return f"[{id}] {child_name} - {game_name} (점수: {self.score}) ({date})"
