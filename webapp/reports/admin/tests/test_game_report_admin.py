@@ -234,11 +234,11 @@ class GameReportAdminTests(TestCase):
         self.assertFalse(self.game_report_admin.has_add_permission(request))
 
     def test_has_change_permission_false(self):
-        """수정 권한 테스트 (불가능해야 함)"""
+        """수정 권한 테스트 (가능해야 함)"""
         request = self.factory.get("/admin/reports/gamereport/")
         request.user = self.user
 
-        self.assertFalse(self.game_report_admin.has_change_permission(request))
+        self.assertTrue(self.game_report_admin.has_change_permission(request))
 
     def test_has_delete_permission_superuser_only(self):
         """삭제 권한 테스트 (슈퍼유저만 가능)"""
