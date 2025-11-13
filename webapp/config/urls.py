@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
+from django.views.generic import RedirectView
 from django.views.static import serve
 
 from drf_spectacular.views import (
@@ -16,6 +17,11 @@ urlpatterns = [
     path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("api/", include("api.urls")),
     path("games/", include("games.urls")),
+    # Favicon
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url=settings.STATIC_URL + "favicon.ico", permanent=True),
+    ),
 ]
 
 if settings.DEBUG:
