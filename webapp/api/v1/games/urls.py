@@ -8,7 +8,7 @@ from .views import (
     KidsTrafficStartAPIView,
 )
 
-app_name = "games"
+app_name = "api.v1.games"
 
 urlpatterns = [
     path("", GameListAPIView.as_view(), name="game_list"),

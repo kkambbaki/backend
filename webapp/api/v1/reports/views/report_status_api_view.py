@@ -48,9 +48,9 @@ class ReportStatusAPIView(BaseAPIView):
         """
 
         # 아동 확인
-        child = self.current_user.child
-
-        if not child:
+        try:
+            child = self.current_user.child
+        except Exception:
             raise NotFoundError(message="등록된 자녀 정보가 없습니다.")
 
         # 리포트 조회 또는 생성
