@@ -16,6 +16,20 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+# 커스텀 헤더 허용 (X-BOT-TOKEN)
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "x-bot-token",  # 커스텀 헤더 추가
+]
+
 # ========== END CORS / CSRF settings ==========
 
 # ========== Security settings ==========
