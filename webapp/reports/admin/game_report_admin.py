@@ -30,8 +30,6 @@ class GameReportAdviceInline(TabularInline):
     )
     readonly_fields = (
         "game",
-        "title",
-        "description",
         "error_message",
         "created_at",
     )
@@ -162,8 +160,8 @@ class GameReportAdmin(ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        """수정 불가 (읽기 전용)"""
-        return False
+        """조회 및 Inline 수정 가능"""
+        return True
 
     def has_delete_permission(self, request, obj=None):
         """삭제는 슈퍼유저만 가능"""
