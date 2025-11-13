@@ -70,7 +70,8 @@ class BasePDFGenerator(ABC):
             dict: playwright page.pdf()에 전달할 옵션들
         """
         return {
-            "format": self.get_pdf_format(),
+            "width": "15in",
+            "height": "11.7in",
             "print_background": True,
             "prefer_css_page_size": False,
         }
