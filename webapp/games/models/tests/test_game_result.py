@@ -82,7 +82,11 @@ class GameResultModelTests(TestCase):
 
     def test_game_result_str(self):
         """게임 결과 __str__ 메서드 테스트"""
-        expected = f"{self.child.name} - {self.game.name} (점수: {self.result.score})"
+        id = self.result.id
+        child_name = self.child.name
+        game_name = self.game.name
+        date = self.result.created_at.strftime("%Y-%m-%d %H:%M")
+        expected = f"[{id}] {child_name} - {game_name} (점수: {self.result.score}) ({date})"
         self.assertEqual(str(self.result), expected)
 
     def test_game_result_required_fields(self):
