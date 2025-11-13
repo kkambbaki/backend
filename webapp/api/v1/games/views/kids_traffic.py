@@ -1,6 +1,5 @@
 from django.db import transaction
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -8,6 +7,7 @@ from games.choices.game_code_choice import GameCodeChoice
 from games.choices.game_session_status_choice import GameSessionStatusChoice
 from games.models import Game, GameResult, GameSession
 from rest_framework import status
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from api.v1.games.serializers import (
