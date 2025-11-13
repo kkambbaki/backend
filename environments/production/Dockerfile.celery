@@ -12,45 +12,10 @@ FROM python-base AS base
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     netcat-traditional \
-    curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN mkdir -p /app
-
-# 임시 디렉토리 생성 (import_export용)
-RUN mkdir -p /app/tmp && chmod 777 /app/tmp
-
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
-FROM base AS builder
-
-# Build dependencies only in builder stage
-RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     build-essential \
+    curl \
     wget \
     git \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Git configuration
-RUN git config --global url."https://".insteadOf git:// && \
-    git config --global url."https://".insteadOf ssh://git@
-
-COPY pyproject.toml uv.lock /_lock/
-
-RUN --mount=type=cache,target=/root/.cache \
-  cd /_lock/ && \
-  uv sync --frozen --no-install-project
-
-# Install Playwright browsers (without --with-deps to avoid duplication)
-# Runtime dependencies will be installed in final stage
-RUN /app/.venv/bin/playwright install chromium
-
-FROM base AS runtime
-
-# Install only Playwright runtime dependencies
-RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     libnss3 \
     libnspr4 \
     libgbm1 \
@@ -61,23 +26,35 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy virtual environment from builder
-COPY --from=builder /app/.venv /app/.venv
+# Git configuration
+RUN git config --global url."https://".insteadOf git:// && \
+    git config --global url."https://".insteadOf ssh://git@
 
-# Copy Playwright browsers from builder
-COPY --from=builder /root/.cache/ms-playwright /root/.cache/ms-playwright
+RUN mkdir -p /app
+
+# 임시 디렉토리 생성 (import_export용)
+RUN mkdir -p /app/tmp && chmod 777 /app/tmp
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+FROM base AS builder
+
+COPY pyproject.toml uv.lock /_lock/
+
+RUN --mount=type=cache,target=/root/.cache \
+  cd /_lock/ && \
+  uv sync --frozen --no-install-project
+
+# Install Playwright browsers (without cache mount to persist in image)
+RUN /app/.venv/bin/playwright install --with-deps chromium
 
 WORKDIR /app/webapp
 
 COPY ./webapp /app/webapp
 
-# Clean up Python bytecode and cache
-RUN find /app -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
-    find /app -type f -name "*.pyc" -delete 2>/dev/null || true
-
 ENV PATH="/app/.venv/bin:$PATH"
 
-COPY ./environments/production/entrypoint-celery.sh /app/entrypoint.sh
+COPY ./environments/alpha/entrypoint-celery.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 ENTRYPOINT [ "/app/entrypoint.sh" ]
