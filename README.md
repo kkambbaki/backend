@@ -5,18 +5,65 @@
 ### 디렉토리별 역할
 
 - **`webapp/`**: Django 프로젝트의 메인 디렉토리
-  - **`api/`**: REST API 엔드포인트 (v1 버전)
-    - `health_check/`: 헬스체크 API
-    - `users/`: 사용자 관련 API
-  - **`common/`**: 공통 모듈
-    - `exceptions/`: 커스텀 예외 처리
-    - `middlewares/`: 커스텀 미들웨어 (CamelCase 변환 등)
-    - `models/`: 기본 모델 (이를 상속하여 사용합니다.)
+  - **`config/`**: Django 설정 및 URL 라우팅
+    - `settings/`: 환경별 설정 파일 (base, development, production, alpha, test)
+    - `urls.py`: 메인 URL 라우터
+    - `celery.py`: Celery 비동기 작업 설정
+    - `asgi.py` / `wsgi.py`: 서버 배포 설정
+
+  - **`common/`**: 공통 모듈 (재사용 가능한 컴포넌트)
+    - `exceptions/`: 커스텀 예외 처리 (BaseAPIException, 에러 코드 등)
+    - `middlewares/`: 커스텀 미들웨어 (CamelCase 변환)
+    - `models/`: 기본 모델 (BaseModel - 모든 모델이 상속)
+    - `views/`: 기본 뷰 클래스 (BaseAPIView, BaseViewSet)
+    - `permissions/`: 커스텀 권한 클래스 (ActiveUserPermission)
     - `pagination/`: 페이지네이션 설정
-    - `views/`: 기본 뷰 클래스 (이를 상속하여 사용합니다.)
-  - **`config/`**: Django 설정
-    - `settings/`: 환경별 설정 파일 (base, development, production, alpha)
+    - `utils/`: 유틸리티 함수 (datetime 등)
+    - `admin/`: 관리자 페이지 유틸리티
+    - `responses/`: 표준 응답 포맷
+    - `choices/`: 전역 선택지 열거형
+
+  - **`api/`**: REST API 엔드포인트 (버전별)
+    - **`v1/`**: API v1 버전
+      - `health_check/`: 헬스체크 API
+      - `users/`: 사용자 인증 및 관리 API
+      - `games/`: 게임 목록 및 세션 관리 API
+      - `reports/`: 리포트 생성 및 조회 API
+
   - **`users/`**: 사용자 모델 및 관리
+    - `models/`: User, Child, BotToken 모델
+    - `admin/`: 사용자 관리자 페이지 커스터마이징
+    - `validators.py`: 사용자 데이터 검증
+    - `choices/`: 사용자 관련 선택지
+
+  - **`games/`**: 게임 관리
+    - `models/`: Game, GameSession, GameResult, RankingEntry 모델
+    - `admin/`: 게임 관리자 페이지
+    - `serializers.py`: 게임 데이터 직렬화
+    - `views.py`: 게임 뷰 및 랭킹 표시
+    - `choices/`: 게임 관련 선택지
+
+  - **`reports/`**: 리포트 생성 및 관리 (가장 복잡한 앱)
+    - `models/`: Report, GameReport, GameReportAdvice, ReportPin 모델
+    - `services/`: 비즈니스 로직 서비스
+      - `report_generation_service.py`: 리포트 생성 오케스트레이션
+      - `game_report_generation_service.py`: 게임별 리포트 생성
+      - `report_email_service.py`: 이메일 발송 서비스
+      - `base_pdf_generator.py`: PDF 생성 베이스 클래스
+    - `llm/`: LLM 통합 (AI 기반 조언 생성)
+      - `generator.py`: LLM 리포트 생성 로직
+      - `prompt.py`: LLM 프롬프트 템플릿
+      - `provider.py`: LLM 제공자 인터페이스
+    - `tasks/`: Celery 비동기 작업
+      - `report_task.py`: 리포트 생성 작업
+      - `report_email_task.py`: 이메일 발송 작업
+    - `admin/`: 리포트 관리자 페이지
+    - `authentication.py`: 리포트 접근 인증
+    - `management/commands/`: Django 관리 명령어
+
+  - **`static/`**: 정적 파일 (CSS, JS, 이미지)
+  - **`staticfiles/`**: 수집된 정적 파일 (프로덕션용)
+  - **`media/`**: 미디어 파일 (생성된 PDF 등)
 
 - **`environments/`**: 환경별 Docker 설정
   - **`development/`**: 개발 환경
@@ -128,6 +175,82 @@ cp .env.sample .env  # .env 파일 생성 후 수정
 
 ## API 엔드포인트
 
-- **헬스체크**: `GET /api/v1/health/`
-- **사용자 API**: `GET /api/v1/users/`
-- **API 문서**: `GET /`
+### 문서 및 스키마
+
+- **Swagger UI**: `GET /` - 인터랙티브 API 문서
+- **OpenAPI 스키마**: `GET /schema/` - OpenAPI 3.0 스키마 JSON
+- **ReDoc**: `GET /redoc/` - 대체 API 문서 (ReDoc 스타일)
+
+### 1. 헬스체크 (Health Check)
+
+**Base Path**: `/api/v1/health-check/`
+
+- `GET /api/v1/health-check/` - 애플리케이션 헬스 상태 확인 (인증 불필요)
+
+### 2. 사용자 (Users)
+
+**Base Path**: `/api/v1/users/`
+
+#### 인증 및 계정 관리 (dj-rest-auth)
+
+- `POST /api/v1/users/login/` - 로그인
+- `POST /api/v1/users/logout/` - 로그아웃 (인증 필요)
+- `POST /api/v1/users/password/reset/` - 비밀번호 재설정 요청
+- `POST /api/v1/users/password/reset/confirm/` - 비밀번호 재설정 확인
+- `POST /api/v1/users/password/change/` - 비밀번호 변경 (인증 필요)
+- `GET/PUT/PATCH /api/v1/users/user/` - 사용자 정보 조회/수정 (인증 필요)
+- `POST /api/v1/users/token/verify/` - JWT 토큰 검증
+- `POST /api/v1/users/token/refresh/` - JWT 토큰 갱신
+
+#### 회원가입
+
+- `POST /api/v1/users/registration/` - 회원가입
+- `POST /api/v1/users/registration/verify-email/` - 이메일 인증
+- `POST /api/v1/users/registration/resend-email/` - 이메일 인증 재발송
+
+#### 커스텀 사용자 엔드포인트
+
+- `GET /api/v1/users/check-username/` - 사용자명 중복 확인 (인증 불필요)
+- `PATCH /api/v1/users/email/` - 이메일 변경 (인증 필요)
+- `GET /api/v1/users/child/` - 자녀 정보 조회 (인증 필요)
+- `POST /api/v1/users/child/` - 자녀 정보 등록/수정 (인증 필요)
+
+### 3. 게임 (Games)
+
+**Base Path**: `/api/v1/games/`
+
+#### 게임 목록
+
+- `GET /api/v1/games/` - 활성 게임 목록 조회
+
+#### 뿅뿅 아기별 (BB Star)
+
+- `POST /api/v1/games/bb-star/start/` - 게임 세션 시작
+- `POST /api/v1/games/bb-star/finish/` - 게임 세션 종료 및 결과 저장
+
+#### 꼬마 교통지킴이 (Kids Traffic)
+
+- `POST /api/v1/games/kids-traffic/start/` - 게임 세션 시작
+- `POST /api/v1/games/kids-traffic/finish/` - 게임 세션 종료 및 결과 저장
+
+### 4. 리포트 (Reports)
+
+**Base Path**: `/api/v1/reports/`
+
+- `POST /api/v1/reports/` - PIN 인증으로 리포트 상세 조회 (JWT 또는 Bot 인증)
+- `POST /api/v1/reports/status/` - 리포트 생성 상태 확인 및 생성 트리거
+- `POST /api/v1/reports/email/` - 리포트 PDF 이메일 발송
+- `POST /api/v1/reports/set-report-pin/` - 리포트 접근 PIN 설정/변경
+
+### 5. 랭킹 (Ranking)
+
+**Base Path**: `/games/`
+
+- `GET /games/ranking/` - 랭킹 웹 페이지 표시
+- `GET /games/api/ranking/` - 랭킹 데이터 JSON API
+
+### 인증 방식
+
+- **JWT (JSON Web Token)**: 대부분의 인증 엔드포인트에 사용
+- **Bot Authentication**: 리포트 접근을 위한 커스텀 인증 (ReportBotAuthentication)
+- **No Authentication**: 헬스체크, 사용자명 확인, 회원가입은 인증 불필요
