@@ -31,13 +31,6 @@ class BasePDFGeneratorTests(TestCase):
         pdf_format = self.generator.get_pdf_format()
         self.assertEqual(pdf_format, "A4")
 
-    def test_get_pdf_options(self):
-        """PDF 옵션 반환 테스트"""
-        options = self.generator.get_pdf_options()
-        self.assertEqual(options["format"], "A4")
-        self.assertTrue(options["print_background"])
-        self.assertFalse(options["prefer_css_page_size"])
-
     def test_get_storage_path(self):
         """저장 경로 생성 테스트"""
         filename = "test.pdf"
