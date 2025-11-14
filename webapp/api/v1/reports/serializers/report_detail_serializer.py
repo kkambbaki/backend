@@ -7,7 +7,7 @@ from .game_report_detail_serializer import GameReportDetailSerializer
 
 
 class ReportDetailSerializer(serializers.ModelSerializer):
-    """리포트 상세 정보 Serializer"""
+    """레포트 상세 정보 Serializer"""
 
     child = ChildSerializer(
         read_only=True,

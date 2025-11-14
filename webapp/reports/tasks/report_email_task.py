@@ -1,7 +1,7 @@
 """
-리포트 이메일 전송 Celery Task
+레포트 이메일 전송 Celery Task
 
-PDF 리포트를 비동기로 생성하고 이메일로 전송하는 celery task입니다.
+PDF 레포트를 비동기로 생성하고 이메일로 전송하는 celery task입니다.
 """
 
 import logging
@@ -26,16 +26,16 @@ def send_report_email_task(
     to_email: str,
     site_url: str,
     pdf_file_path: Optional[str] = None,
-    pdf_filename: str = "깜빡이 집중력 분석 리포트.pdf",
+    pdf_filename: str = "깜빡이 집중력 분석 레포트.pdf",
     site_name: str = "깜빡이",
     bot_token_id: Optional[int] = None,
 ) -> dict:
     """
-    PDF 리포트를 비동기로 생성하고 이메일로 전송합니다.
+    PDF 레포트를 비동기로 생성하고 이메일로 전송합니다.
 
     Args:
         to_email: 수신자 이메일 주소
-        site_url: 리포트를 생성할 사이트 URL
+        site_url: 레포트를 생성할 사이트 URL
         pdf_file_path: 이미 생성된 PDF 파일 경로 (선택, None이면 site_url로부터 새로 생성)
         pdf_filename: PDF 첨부 파일명 (기본값: report.pdf)
         site_name: 사이트 이름 (기본값: 깜빡이)
@@ -65,7 +65,7 @@ def send_report_email_task(
         # 이메일 서비스 인스턴스 생성
         service = ReportEmailService()
 
-        # 리포트 이메일 전송
+        # 레포트 이메일 전송
         result = service.send_report_email(
             to_email=to_email,
             site_url=site_url,
@@ -120,7 +120,7 @@ def send_report_email_with_existing_pdf_task(
 
     Args:
         to_email: 수신자 이메일 주소
-        site_url: 리포트 사이트 URL
+        site_url: 레포트 사이트 URL
         pdf_file_path: PDF 파일 경로
         pdf_filename: PDF 첨부 파일명 (기본값: report.pdf)
         site_name: 사이트 이름 (기본값: 깜빡이)
@@ -150,7 +150,7 @@ def send_report_email_with_existing_pdf_task(
         # 이메일 서비스 인스턴스 생성
         service = ReportEmailService()
 
-        # 리포트 이메일 전송 (기존 PDF 사용)
+        # 레포트 이메일 전송 (기존 PDF 사용)
         result = service.send_report_email(
             to_email=to_email,
             site_url=site_url,

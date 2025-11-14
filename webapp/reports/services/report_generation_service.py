@@ -14,14 +14,14 @@ logger = logging.getLogger(__name__)
 
 class ReportGenerationService:
     """
-    리포트 생성 및 업데이트 서비스
+    레포트 생성 및 업데이트 서비스
     """
 
     @staticmethod
     @transaction.atomic
     def update_or_create_report(user, child):
         """
-        사용자와 아동에 대한 리포트 조회 또는 생성
+        사용자와 아동에 대한 레포트 조회 또는 생성
 
         Args:
             user: 사용자 객체
@@ -40,7 +40,7 @@ class ReportGenerationService:
         # 집중력 점수 계산 및 업데이트
         ReportConcentrationScoreGenerationService.update_concentration_score(report)
 
-        # 리포트 생성 완료 후 COMPLETED 상태로 변경
+        # 레포트 생성 완료 후 COMPLETED 상태로 변경
         report.status = ReportStatusChoice.COMPLETED
         report.save(update_fields=["status", "updated_at"])
 

@@ -22,7 +22,7 @@ from common.admin.utils import (
 
 
 class GameReportInline(TabularInline):
-    """게임 리포트 인라인"""
+    """게임 레포트 인라인"""
 
     model = GameReport
     extra = 0
@@ -74,7 +74,7 @@ class GameReportInline(TabularInline):
 
 @admin.register(Report)
 class ReportAdmin(ModelAdmin):
-    """리포트 관리자 페이지"""
+    """레포트 관리자 페이지"""
 
     list_display = (
         "id",
@@ -120,7 +120,7 @@ class ReportAdmin(ModelAdmin):
             },
         ),
         (
-            "리포트 상세",
+            "레포트 상세",
             {
                 "fields": (
                     "concentration_score",
@@ -179,11 +179,11 @@ class ReportAdmin(ModelAdmin):
     status_display.admin_order_field = "status"
 
     def game_reports_count(self, obj):
-        """게임 리포트 개수 표시"""
+        """게임 레포트 개수 표시"""
         count = obj.game_reports.count()
         return render_count(count)
 
-    game_reports_count.short_description = "게임 리포트 수"
+    game_reports_count.short_description = "게임 레포트 수"
 
     def get_queryset(self, request):
         """쿼리셋 최적화"""

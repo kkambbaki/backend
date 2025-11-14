@@ -19,12 +19,12 @@ class ReportEmailServiceTests(TestCase):
     def test_get_subject(self):
         """이메일 제목 생성 테스트"""
         subject = self.service.get_subject(site_name="깜빡이")
-        self.assertEqual(subject, "[깜빡이] 집중력 분석 리포트가 도착했습니다")
+        self.assertEqual(subject, "[깜빡이] 집중력 분석 레포트가 도착했습니다")
 
     def test_get_subject_with_custom_site_name(self):
         """커스텀 사이트 이름으로 제목 생성 테스트"""
         subject = self.service.get_subject(site_name="테스트사이트")
-        self.assertEqual(subject, "[테스트사이트] 집중력 분석 리포트가 도착했습니다")
+        self.assertEqual(subject, "[테스트사이트] 집중력 분석 레포트가 도착했습니다")
 
     def test_get_body(self):
         """이메일 본문 생성 테스트 (텍스트 형식은 제공하지 않음)"""
@@ -36,7 +36,7 @@ class ReportEmailServiceTests(TestCase):
         html_body = self.service.get_html_body(site_url=self.test_url)
 
         self.assertIn("<!DOCTYPE html>", html_body)
-        self.assertIn("집중력 분석 리포트", html_body)
+        self.assertIn("집중력 분석 레포트", html_body)
         self.assertIn("깜빡이팀", html_body)
         self.assertIn("cid:logo", html_body)
 

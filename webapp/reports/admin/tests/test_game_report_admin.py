@@ -47,7 +47,7 @@ class GameReportAdminTests(TestCase):
             is_active=True,
         )
 
-        # 리포트 생성
+        # 레포트 생성
         self.report = Report.objects.create(
             user=self.user,
             child=self.child,
@@ -60,7 +60,7 @@ class GameReportAdminTests(TestCase):
             game=self.game,
         )
 
-        # 게임 리포트 생성
+        # 게임 레포트 생성
         self.game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,
@@ -131,7 +131,7 @@ class GameReportAdminTests(TestCase):
         self.assertTrue(self.game_report_admin.show_full_result_count)
 
     def test_report_info_display_with_report(self):
-        """report_info 메서드 테스트 (리포트가 있는 경우)"""
+        """report_info 메서드 테스트 (레포트가 있는 경우)"""
         result = self.game_report_admin.report_info(self.game_report)
 
         # HTML 형식 확인
@@ -142,7 +142,7 @@ class GameReportAdminTests(TestCase):
         self.assertIn("<small>", result)
 
     def test_report_info_display_without_report(self):
-        """report_info 메서드 테스트 (리포트가 없는 경우)"""
+        """report_info 메서드 테스트 (레포트가 없는 경우)"""
         mock_game_report = Mock(spec=GameReport)
         mock_game_report.report = None
 
@@ -151,7 +151,7 @@ class GameReportAdminTests(TestCase):
 
     def test_report_info_short_description(self):
         """report_info의 short_description 테스트"""
-        self.assertEqual(self.game_report_admin.report_info.short_description, "리포트")
+        self.assertEqual(self.game_report_admin.report_info.short_description, "레포트")
 
     def test_report_info_admin_order_field(self):
         """report_info의 admin_order_field 테스트"""
@@ -372,19 +372,19 @@ class GameReportAdviceInlineTests(TestCase):
             is_active=True,
         )
 
-        # 리포트 생성
+        # 레포트 생성
         self.report = Report.objects.create(
             user=self.user,
             child=self.child,
         )
 
-        # 게임 리포트 생성
+        # 게임 레포트 생성
         self.game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,
         )
 
-        # 게임 리포트 조언 생성
+        # 게임 레포트 조언 생성
         self.advice = GameReportAdvice.objects.create(
             game_report=self.game_report,
             game=self.game,

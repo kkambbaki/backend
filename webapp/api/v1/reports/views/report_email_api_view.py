@@ -15,16 +15,16 @@ from users.models import BotToken
 FRONTEND_REPORT_URL = settings.FRONTEND_REPORT_URL
 
 
-@extend_schema(tags=["리포트"])
+@extend_schema(tags=["레포트"])
 class ReportEmailAPIView(BaseAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [ActiveUserPermission]
 
     @extend_schema(
         operation_id="send_report_email",
-        summary="리포트 이메일 전송",
+        summary="레포트 이메일 전송",
         description="""
-        리포트를 PDF로 생성하여 이메일로 전송합니다.
+        레포트를 PDF로 생성하여 이메일로 전송합니다.
 
         - email 파라미터가 없으면 request.user.email을 사용합니다.
         - BOT 토큰을 자동으로 생성하여 프론트엔드 URL에 첨부합니다.
@@ -41,7 +41,7 @@ class ReportEmailAPIView(BaseAPIView):
     )
     def post(self, request):
         """
-        리포트 PDF를 생성하여 이메일로 전송
+        레포트 PDF를 생성하여 이메일로 전송
 
         - BOT 토큰 생성
         - 프론트엔드 URL에 토큰 첨부
@@ -68,6 +68,6 @@ class ReportEmailAPIView(BaseAPIView):
         )
 
         return Response(
-            {"message": "리포트 이메일 전송이 시작되었습니다."},
+            {"message": "레포트 이메일 전송이 시작되었습니다."},
             status=status.HTTP_200_OK,
         )

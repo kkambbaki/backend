@@ -6,7 +6,7 @@ from .game_report_advice_serializer import GameReportAdviceSerializer
 
 
 class GameReportDetailSerializer(serializers.ModelSerializer):
-    """게임 리포트 Serializer"""
+    """게임 레포트 Serializer"""
 
     game_name = serializers.CharField(
         source="game.name",
@@ -68,7 +68,7 @@ class GameReportDetailSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.BooleanField)
     def get_is_up_to_date(self, obj) -> bool:
-        """게임 리포트가 최신 상태인지 확인"""
+        """게임 레포트가 최신 상태인지 확인"""
         return obj.is_up_to_date()
 
     @extend_schema_field(serializers.IntegerField(allow_null=True))

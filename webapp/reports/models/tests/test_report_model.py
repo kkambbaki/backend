@@ -29,7 +29,7 @@ class ReportModelTests(TestCase):
         )
 
     def test_create_report(self):
-        """리포트 생성 테스트"""
+        """레포트 생성 테스트"""
         report = Report.objects.create(
             user=self.user,
             child=self.child,
@@ -42,7 +42,7 @@ class ReportModelTests(TestCase):
         self.assertEqual(report.status, ReportStatusChoice.NO_GAMES_PLAYED)
 
     def test_report_default_status(self):
-        """리포트 기본 상태 테스트"""
+        """레포트 기본 상태 테스트"""
         report = Report.objects.create(
             user=self.user,
             child=self.child,
@@ -51,7 +51,7 @@ class ReportModelTests(TestCase):
         self.assertEqual(report.status, ReportStatusChoice.NO_GAMES_PLAYED)
 
     def test_report_default_concentration_score(self):
-        """리포트 기본 집중력 점수 테스트"""
+        """레포트 기본 집중력 점수 테스트"""
         report = Report.objects.create(
             user=self.user,
             child=self.child,
@@ -101,17 +101,17 @@ class ReportModelTests(TestCase):
         self.assertEqual(report.concentration_score, 80)
 
     def test_report_str_representation(self):
-        """리포트 문자열 표현 테스트"""
+        """레포트 문자열 표현 테스트"""
         report = Report.objects.create(
             user=self.user,
             child=self.child,
         )
 
-        expected = f"{self.user.username} - {self.child.name} 리포트"
+        expected = f"{self.user.username} - {self.child.name} 레포트"
         self.assertEqual(str(report), expected)
 
     def test_multiple_reports_different_users(self):
-        """다른 사용자들의 리포트 생성 테스트"""
+        """다른 사용자들의 레포트 생성 테스트"""
         user2 = User.objects.create_user(
             username="user2",
             password="pass123",
@@ -137,7 +137,7 @@ class ReportModelTests(TestCase):
         self.assertNotEqual(report1.child, report2.child)
 
     def test_report_status_update(self):
-        """리포트 상태 업데이트 테스트"""
+        """레포트 상태 업데이트 테스트"""
         report = Report.objects.create(
             user=self.user,
             child=self.child,
@@ -181,7 +181,7 @@ class ReportModelTests(TestCase):
         self.assertEqual(report_max.concentration_score, 100)
 
     def test_report_ordering(self):
-        """리포트 정렬 테스트 (updated_at 역순)"""
+        """레포트 정렬 테스트 (updated_at 역순)"""
         user2 = User.objects.create_user(username="user2_order", password="pass")
         child2 = Child.objects.create(
             parent=user2,

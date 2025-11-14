@@ -42,7 +42,7 @@ class GameReportAdviceModelTests(TestCase):
         )
 
     def test_create_game_report_advice(self):
-        """게임 리포트 조언 생성 테스트"""
+        """게임 레포트 조언 생성 테스트"""
         advice = GameReportAdvice.objects.create(
             game_report=self.game_report,
             game=self.game,
@@ -70,7 +70,7 @@ class GameReportAdviceModelTests(TestCase):
         self.assertEqual(advice.error_message, "LLM API timeout")
 
     def test_multiple_advices_for_game_report(self):
-        """하나의 게임 리포트에 여러 조언 생성 테스트"""
+        """하나의 게임 레포트에 여러 조언 생성 테스트"""
         advice1 = GameReportAdvice.objects.create(
             game_report=self.game_report,
             game=self.game,
@@ -111,7 +111,7 @@ class GameReportAdviceModelTests(TestCase):
             description="내용 2",
         )
 
-        # 다른 게임 리포트
+        # 다른 게임 레포트
         user2 = User.objects.create_user(username="user2", password="pass")
         child2 = Child.objects.create(
             parent=user2,
@@ -165,7 +165,7 @@ class GameReportAdviceModelTests(TestCase):
         self.assertIn(advice1, advices)
 
     def test_game_report_advice_str_representation(self):
-        """게임 리포트 조언 문자열 표현 테스트"""
+        """게임 레포트 조언 문자열 표현 테스트"""
         advice = GameReportAdvice.objects.create(
             game_report=self.game_report,
             game=self.game,
@@ -177,7 +177,7 @@ class GameReportAdviceModelTests(TestCase):
         self.assertEqual(str(advice), expected)
 
     def test_advice_cascade_delete_with_game_report(self):
-        """게임 리포트 삭제 시 조언도 함께 삭제되는지 테스트"""
+        """게임 레포트 삭제 시 조언도 함께 삭제되는지 테스트"""
         advice1 = GameReportAdvice.objects.create(
             game_report=self.game_report,
             game=self.game,
@@ -193,7 +193,7 @@ class GameReportAdviceModelTests(TestCase):
 
         advice_ids = [advice1.id, advice2.id]
 
-        # 게임 리포트 삭제
+        # 게임 레포트 삭제
         self.game_report.delete()
 
         # 조언들도 삭제되었는지 확인

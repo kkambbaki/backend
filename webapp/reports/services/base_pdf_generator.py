@@ -17,6 +17,9 @@ from django.core.files.storage import default_storage
 
 from playwright.sync_api import sync_playwright
 
+REPORT_WIDTH = settings.REPORT_WIDTH
+REPORT_HEIGHT = settings.REPORT_HEIGHT
+
 
 class BasePDFGenerator(ABC):
     """
@@ -70,8 +73,8 @@ class BasePDFGenerator(ABC):
             dict: playwright page.pdf()에 전달할 옵션들
         """
         return {
-            "width": "15in",
-            "height": "11.7in",
+            "width": REPORT_WIDTH,
+            "height": REPORT_HEIGHT,
             "print_background": True,
             "prefer_css_page_size": False,
         }

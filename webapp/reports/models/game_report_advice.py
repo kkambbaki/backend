@@ -14,14 +14,14 @@ class GameReportAdviceManager(BaseModelManager):
 
 class GameReportAdvice(BaseModel):
     """
-    게임 리포트 조언 모델
+    게임 레포트 조언 모델
     LLM을 통한 게임 결과 분석 및 조언
     """
 
     class Meta:
         db_table = "game_report_advices"
-        verbose_name = _("게임 리포트 조언")
-        verbose_name_plural = _("게임 리포트 조언")
+        verbose_name = _("게임 레포트 조언")
+        verbose_name_plural = _("게임 레포트 조언")
         ordering = ["-created_at"]
 
     objects = GameReportAdviceManager()
@@ -32,7 +32,7 @@ class GameReportAdvice(BaseModel):
         related_name="advices",
         null=False,
         blank=False,
-        verbose_name=_("게임 리포트"),
+        verbose_name=_("게임 레포트"),
     )
     game = models.ForeignKey(
         "games.Game",

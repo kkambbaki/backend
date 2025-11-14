@@ -129,7 +129,7 @@ class ReportStatusCheckServiceTests(TestCase):
             score=100,
         )
 
-        # 게임 리포트 생성 (최신 세션으로 설정)
+        # 게임 레포트 생성 (최신 세션으로 설정)
         GameReport.objects.create(
             report=self.report,
             game=self.game1,
@@ -177,7 +177,7 @@ class ReportStatusCheckServiceTests(TestCase):
 
     @patch("reports.services.report_status_check_service.generate_report_task.delay")
     def test_check_status_error_handling(self, mock_task):
-        """리포트 생성 트리거 중 오류 발생 시 처리 테스트"""
+        """레포트 생성 트리거 중 오류 발생 시 처리 테스트"""
         # 각 게임에 대해 별도의 세션 생성
         session1 = GameSession.objects.create(parent=self.user, game=self.game1, child=self.child)
         session2 = GameSession.objects.create(parent=self.user, game=self.game2, child=self.child)
@@ -274,7 +274,7 @@ class ReportStatusCheckServiceTests(TestCase):
             score=100,
         )
 
-        # 게임 1 리포트만 생성 (최신 상태)
+        # 게임 1 레포트만 생성 (최신 상태)
         GameReport.objects.create(
             report=self.report,
             game=self.game1,
@@ -283,10 +283,10 @@ class ReportStatusCheckServiceTests(TestCase):
 
         service = ReportStatusCheckService(self.report)
 
-        # 게임 2 리포트가 없으므로 최신 상태 아님
+        # 게임 2 레포트가 없으므로 최신 상태 아님
         self.assertFalse(service._is_all_up_to_date())
 
-        # 게임 2 리포트도 생성
+        # 게임 2 레포트도 생성
         GameReport.objects.create(
             report=self.report,
             game=self.game2,
@@ -368,7 +368,7 @@ class ReportStatusCheckServiceTests(TestCase):
             score=100,
         )
 
-        # 게임 리포트 생성 (이전 세션 참조)
+        # 게임 레포트 생성 (이전 세션 참조)
         GameReport.objects.create(
             report=self.report,
             game=self.game1,

@@ -7,7 +7,7 @@ from users.models import BotToken
 class ReportBotAuthentication(authentication.BaseAuthentication):
     """
     BOT 토큰을 사용한 인증 클래스
-    HTTP 헤더의 X-BOT-TOKEN을 확인하여 해당 리포트의 사용자로 인증합니다.
+    HTTP 헤더의 X-BOT-TOKEN을 확인하여 해당 레포트의 사용자로 인증합니다.
     """
 
     keyword = "X-BOT-TOKEN"
@@ -55,7 +55,7 @@ class ReportBotAuthentication(authentication.BaseAuthentication):
 
     def authenticate_credentials(self, token):
         """
-        토큰을 검증하고 해당 리포트의 사용자를 반환합니다.
+        토큰을 검증하고 해당 레포트의 사용자를 반환합니다.
 
         Args:
             token: BOT 토큰 문자열

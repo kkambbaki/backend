@@ -50,7 +50,7 @@ class ReportGenerationServiceTests(TestCase):
         "reports.services.report_generation_service.ReportConcentrationScoreGenerationService.update_concentration_score"
     )
     def test_update_or_create_report_creates_new_report(self, mock_update_concentration, mock_update_game_report):
-        """새 리포트 생성 테스트"""
+        """새 레포트 생성 테스트"""
         # Mocking
         mock_update_game_report.return_value = MagicMock()
         mock_update_concentration.return_value = MagicMock()
@@ -76,8 +76,8 @@ class ReportGenerationServiceTests(TestCase):
         "reports.services.report_generation_service.ReportConcentrationScoreGenerationService.update_concentration_score"
     )
     def test_update_or_create_report_updates_existing_report(self, mock_update_concentration, mock_update_game_report):
-        """기존 리포트 업데이트 테스트"""
-        # 기존 리포트 생성
+        """기존 레포트 업데이트 테스트"""
+        # 기존 레포트 생성
         existing_report = Report.objects.create(
             user=self.user,
             child=self.child,
@@ -151,7 +151,7 @@ class ReportGenerationServiceTests(TestCase):
                 child=self.child,
             )
 
-        # 리포트가 생성되지 않았는지 확인 (트랜잭션 롤백)
+        # 레포트가 생성되지 않았는지 확인 (트랜잭션 롤백)
         self.assertFalse(Report.objects.filter(user=self.user, child=self.child).exists())
 
     @patch("reports.services.report_generation_service.GameReportGenerationService.update_or_create_game_report")
@@ -188,7 +188,7 @@ class ReportGenerationServiceTests(TestCase):
         "reports.services.report_generation_service.ReportConcentrationScoreGenerationService.update_concentration_score"
     )
     def test_update_or_create_report_status_completion(self, mock_update_concentration, mock_update_game_report):
-        """리포트 상태가 COMPLETED로 변경되는지 테스트"""
+        """레포트 상태가 COMPLETED로 변경되는지 테스트"""
         # Mocking
         mock_update_game_report.return_value = MagicMock()
         mock_update_concentration.return_value = MagicMock()
@@ -220,11 +220,11 @@ class ReportGenerationServiceTests(TestCase):
         )
 
         # 검증 - 호출 순서 확인
-        # 1. 게임 리포트 생성/업데이트가 먼저
+        # 1. 게임 레포트 생성/업데이트가 먼저
         self.assertTrue(mock_update_game_report.called)
 
         # 2. 집중력 점수 업데이트가 나중에
         self.assertTrue(mock_update_concentration.called)
 
-        # 집중력 점수는 게임 리포트 처리 후에 호출되어야 함
+        # 집중력 점수는 게임 레포트 처리 후에 호출되어야 함
         mock_update_concentration.assert_called_once()

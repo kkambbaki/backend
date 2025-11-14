@@ -1,7 +1,7 @@
 """
-리포트 생성 Celery Task
+레포트 생성 Celery Task
 
-게임 리포트를 비동기로 생성하는 celery task입니다.
+게임 레포트를 비동기로 생성하는 celery task입니다.
 """
 
 import logging
@@ -28,7 +28,7 @@ def generate_report_task(
     child_id: int,
 ) -> dict:
     """
-    리포트를 비동기로 생성합니다.
+    레포트를 비동기로 생성합니다.
 
     Args:
         user_id: 사용자 ID
@@ -38,7 +38,7 @@ def generate_report_task(
         dict: {
             "success": bool,
             "message": str,
-            "report_id": int,  # 성공 시 리포트 ID
+            "report_id": int,  # 성공 시 레포트 ID
         }
 
     Example:
@@ -59,7 +59,7 @@ def generate_report_task(
         user = User.objects.get(id=user_id)
         child = Child.objects.get(id=child_id)
 
-        # 리포트 생성 실행
+        # 레포트 생성 실행
         report = ReportGenerationService.update_or_create_report(
             user=user,
             child=child,

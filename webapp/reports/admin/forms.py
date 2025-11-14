@@ -4,7 +4,7 @@ from unfold.widgets import UnfoldAdminTextInputWidget
 
 
 class SendReportEmailForm(forms.Form):
-    """리포트 이메일 전송 폼"""
+    """레포트 이메일 전송 폼"""
 
     email = forms.EmailField(
         label="수신자 이메일",
@@ -14,7 +14,7 @@ class SendReportEmailForm(forms.Form):
                 "placeholder": "example@email.com",
             }
         ),
-        help_text="리포트 PDF를 전송할 이메일 주소를 입력하세요.",
+        help_text="레포트 PDF를 전송할 이메일 주소를 입력하세요.",
     )
 
     class Meta:

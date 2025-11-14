@@ -32,7 +32,7 @@ class GenerateReportTaskTests(TestCase):
 
     @patch("reports.tasks.report_task.ReportGenerationService.update_or_create_report")
     def test_generate_report_task_success(self, mock_service):
-        """리포트 생성 성공 테스트"""
+        """레포트 생성 성공 테스트"""
         # Mock service
         mock_report = Mock()
         mock_report.id = 123
@@ -133,8 +133,8 @@ class GenerateReportTaskTests(TestCase):
 
     @patch("reports.tasks.report_task.ReportGenerationService.update_or_create_report")
     def test_generate_report_task_creates_actual_report(self, mock_service):
-        """실제 리포트 생성 확인 테스트"""
-        # Mock service - 실제 리포트 반환
+        """실제 레포트 생성 확인 테스트"""
+        # Mock service - 실제 레포트 반환
         report = Report.objects.create(
             user=self.user,
             child=self.child,
@@ -151,7 +151,7 @@ class GenerateReportTaskTests(TestCase):
         self.assertTrue(result["success"])
         self.assertEqual(result["report_id"], report.id)
 
-        # DB에 리포트가 생성되었는지 확인
+        # DB에 레포트가 생성되었는지 확인
         self.assertTrue(
             Report.objects.filter(
                 user=self.user,
@@ -287,7 +287,7 @@ class GenerateReportTaskTests(TestCase):
 
     @patch("reports.tasks.report_task.ReportGenerationService.update_or_create_report")
     def test_generate_report_task_with_multiple_children(self, mock_service):
-        """여러 아동에 대한 리포트 생성 테스트"""
+        """여러 아동에 대한 레포트 생성 테스트"""
         child2 = Child.objects.create(
             parent=self.user,
             name="Second Child",
@@ -304,13 +304,13 @@ class GenerateReportTaskTests(TestCase):
 
         mock_service.side_effect = [mock_report1, mock_report2]
 
-        # 첫 번째 아동 리포트
+        # 첫 번째 아동 레포트
         result1 = generate_report_task(
             user_id=self.user.id,
             child_id=self.child.id,
         )
 
-        # 두 번째 아동 리포트
+        # 두 번째 아동 레포트
         result2 = generate_report_task(
             user_id=self.user.id,
             child_id=child2.id,

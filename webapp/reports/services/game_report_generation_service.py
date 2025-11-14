@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class GameReportGenerationService:
     """
-    게임 리포트 생성 및 업데이트 서비스
+    게임 레포트 생성 및 업데이트 서비스
     """
 
     @staticmethod
@@ -87,7 +87,7 @@ class GameReportGenerationService:
     @staticmethod
     def _generate_game_report_advice(game_report, game):
         """
-        LLM을 사용하여 게임 리포트 조언 생성
+        LLM을 사용하여 게임 레포트 조언 생성
 
         Args:
             game_report: GameReport 객체 (통계 컬럼들에 데이터 포함)

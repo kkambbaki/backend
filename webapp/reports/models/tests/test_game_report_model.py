@@ -39,7 +39,7 @@ class GameReportModelTests(TestCase):
         )
 
     def test_create_game_report(self):
-        """게임 리포트 생성 테스트"""
+        """게임 레포트 생성 테스트"""
         game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,
@@ -52,7 +52,7 @@ class GameReportModelTests(TestCase):
         self.assertEqual(game_report.total_wrong_count, 0)
 
     def test_unique_report_game_constraint(self):
-        """리포트와 게임 조합의 유일성 제약 테스트"""
+        """레포트와 게임 조합의 유일성 제약 테스트"""
         GameReport.objects.create(
             report=self.report,
             game=self.game,
@@ -425,7 +425,7 @@ class GameReportModelTests(TestCase):
         self.assertIn(gr2, reports_for_game)
 
     def test_game_report_str_representation(self):
-        """게임 리포트 문자열 표현 테스트"""
+        """게임 레포트 문자열 표현 테스트"""
         game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,

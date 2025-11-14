@@ -57,7 +57,7 @@ class ReportStatusAPIViewTests(TestCase):
 
     @patch("reports.services.report_status_check_service.generate_report_task.delay")
     def test_report_status_creates_report_if_not_exists(self, mock_task):
-        """리포트가 없을 때 자동 생성 테스트"""
+        """레포트가 없을 때 자동 생성 테스트"""
         self.client.force_authenticate(user=self.user)
 
         # 게임 결과 생성
@@ -76,7 +76,7 @@ class ReportStatusAPIViewTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # 리포트가 생성되었는지 확인
+        # 레포트가 생성되었는지 확인
         report = Report.objects.filter(user=self.user, child=self.child).first()
         self.assertIsNotNone(report)
 
@@ -95,7 +95,7 @@ class ReportStatusAPIViewTests(TestCase):
 
     @patch("reports.services.report_status_check_service.generate_report_task.delay")
     def test_report_status_triggers_generation(self, mock_task):
-        """게임 플레이 후 리포트 생성 트리거 테스트"""
+        """게임 플레이 후 레포트 생성 트리거 테스트"""
         self.client.force_authenticate(user=self.user)
 
         # 게임 결과 생성
@@ -122,10 +122,10 @@ class ReportStatusAPIViewTests(TestCase):
         )
 
     def test_report_status_completed(self):
-        """리포트가 완료 상태일 때 테스트"""
+        """레포트가 완료 상태일 때 테스트"""
         self.client.force_authenticate(user=self.user)
 
-        # 게임 결과 및 리포트 생성
+        # 게임 결과 및 레포트 생성
         session = GameSession.objects.create(parent=self.user, game=self.game, child=self.child)
         GameResult.objects.create(
             child=self.child,
@@ -177,7 +177,7 @@ class ReportStatusAPIViewTests(TestCase):
             score=100,
         )
 
-        # 이미 GENERATING 상태인 리포트 생성
+        # 이미 GENERATING 상태인 레포트 생성
         Report.objects.create(
             user=self.user,
             child=self.child,
@@ -260,7 +260,7 @@ class ReportStatusAPIViewTests(TestCase):
 
     @patch("reports.services.report_status_check_service.generate_report_task.delay")
     def test_report_status_error_state(self, mock_task):
-        """리포트 생성 오류 상태 테스트"""
+        """레포트 생성 오류 상태 테스트"""
         mock_task.side_effect = Exception("Task error")
 
         self.client.force_authenticate(user=self.user)
@@ -283,7 +283,7 @@ class ReportStatusAPIViewTests(TestCase):
         self.assertEqual(response.data["status"], ReportStatusChoice.ERROR)
 
     def test_report_status_get_or_create_idempotent(self):
-        """여러 번 호출해도 리포트가 중복 생성되지 않는지 테스트"""
+        """여러 번 호출해도 레포트가 중복 생성되지 않는지 테스트"""
         self.client.force_authenticate(user=self.user)
 
         # 첫 번째 호출
@@ -298,8 +298,8 @@ class ReportStatusAPIViewTests(TestCase):
 
         report2_id = Report.objects.get(user=self.user, child=self.child).id
 
-        # 동일한 리포트여야 함
+        # 동일한 레포트여야 함
         self.assertEqual(report1_id, report2_id)
 
-        # 리포트가 하나만 존재해야 함
+        # 레포트가 하나만 존재해야 함
         self.assertEqual(Report.objects.filter(user=self.user, child=self.child).count(), 1)

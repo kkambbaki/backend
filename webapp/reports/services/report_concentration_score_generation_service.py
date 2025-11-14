@@ -26,7 +26,7 @@ WEIGHT_RECENT_IMPROVEMENT = 0.1  # 최근 개선도 가중치 (10%) - 보너스 
 
 class ReportConcentrationScoreGenerationService:
     """
-    리포트 집중력 점수 생성 서비스
+    레포트 집중력 점수 생성 서비스
 
     점수는 0-100점 사이이며, 다음 요소를 고려합니다:
     1. 전체 성공률 (40%)
@@ -39,7 +39,7 @@ class ReportConcentrationScoreGenerationService:
     @staticmethod
     def calculate_concentration_score(report: Report) -> int:
         """
-        리포트의 집중력 점수 계산
+        레포트의 집중력 점수 계산
 
         Args:
             report: Report 객체
@@ -255,7 +255,7 @@ class ReportConcentrationScoreGenerationService:
     @staticmethod
     def update_concentration_score(report: Report) -> Report:
         """
-        리포트의 집중력 점수를 계산하여 업데이트
+        레포트의 집중력 점수를 계산하여 업데이트
 
         Args:
             report: Report 객체

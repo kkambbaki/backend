@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 
 class GameReportAdviceSerializer(serializers.ModelSerializer):
-    """게임 리포트 조언 Serializer"""
+    """게임 레포트 조언 Serializer"""
 
     class Meta:
         model = GameReportAdvice

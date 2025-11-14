@@ -42,14 +42,14 @@ class ReportConcentrationScoreGenerationServiceTests(TestCase):
         )
 
     def test_calculate_concentration_score_with_no_game_reports(self):
-        """게임 리포트가 없을 때 집중력 점수 계산 테스트"""
+        """게임 레포트가 없을 때 집중력 점수 계산 테스트"""
         score = ReportConcentrationScoreGenerationService.calculate_concentration_score(self.report)
 
         self.assertEqual(score, 0)
 
     def test_calculate_concentration_score_with_no_plays(self):
         """플레이가 없을 때 집중력 점수 계산 테스트"""
-        # 플레이가 없는 게임 리포트
+        # 플레이가 없는 게임 레포트
         GameReport.objects.create(
             report=self.report,
             game=self.game,

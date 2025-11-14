@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 
 class ReportEmailSerializer(serializers.Serializer):
-    """리포트 이메일 전송 요청 Serializer"""
+    """레포트 이메일 전송 요청 Serializer"""
 
     email = serializers.EmailField(
         required=False,

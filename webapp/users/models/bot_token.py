@@ -55,7 +55,7 @@ class BotToken(BaseModel):
     @classmethod
     def create_for_report(cls, user):
         """
-        특정 리포트에 대한 BOT 토큰 생성 및 저장
+        특정 레포트에 대한 BOT 토큰 생성 및 저장
 
         Args:
             user: User 모델 인스턴스

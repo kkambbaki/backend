@@ -19,12 +19,12 @@ class SetReportPinAPIView(BaseAPIView):
 
     @extend_schema(
         operation_id="Set Report Pin",
-        description="리포트 핀을 설정합니다.",
+        description="레포트 핀을 설정합니다.",
         request=SetReportPinRequestSerializer,
         responses={
             200: OpenApiResponse(
                 response=SetReportPinResponseSerializer,
-                description="리포트 핀 설정 성공",
+                description="레포트 핀 설정 성공",
             )
         },
     )

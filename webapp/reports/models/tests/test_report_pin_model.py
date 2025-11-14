@@ -20,7 +20,7 @@ class ReportPinModelTests(TestCase):
         )
 
     def test_create_report_pin(self):
-        """리포트 PIN 생성 테스트"""
+        """레포트 PIN 생성 테스트"""
         pin_hash = "test_hash_value"
         report_pin = ReportPin.objects.create(
             user=self.user,

@@ -40,7 +40,7 @@ class ReportDetailAPIViewTests(TestCase):
         )
         self.url = "/api/v1/reports/"
 
-        # 게임 결과 및 리포트 생성
+        # 게임 결과 및 레포트 생성
         self.session = GameSession.objects.create(parent=self.user, game=self.game, child=self.child)
         GameResult.objects.create(
             child=self.child,
@@ -166,7 +166,7 @@ class ReportDetailAPIViewTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_report_detail_no_report(self):
-        """리포트가 없을 때 에러 테스트"""
+        """레포트가 없을 때 에러 테스트"""
         user2 = User.objects.create_user(
             username="user2",
             password="testpass123",
@@ -218,7 +218,7 @@ class ReportDetailAPIViewTests(TestCase):
             self.assertIn("advices", game_report)
 
     def test_report_detail_includes_game_reports(self):
-        """게임 리포트가 포함되는지 테스트"""
+        """게임 레포트가 포함되는지 테스트"""
         self.client.force_authenticate(user=self.user)
 
         data = {}
@@ -251,7 +251,7 @@ class ReportDetailAPIViewTests(TestCase):
         """prefetch_related가 올바르게 작동하는지 테스트"""
         self.client.force_authenticate(user=self.user)
 
-        # 추가 게임 및 리포트 생성
+        # 추가 게임 및 레포트 생성
         game2 = Game.objects.create(
             name="Game 2",
             code="GAME_2",
@@ -325,7 +325,7 @@ class ReportDetailAPIViewTests(TestCase):
         self.assertIn(response.status_code, [status.HTTP_400_BAD_REQUEST, status.HTTP_422_UNPROCESSABLE_ENTITY])
 
     def test_report_detail_multiple_game_reports(self):
-        """여러 게임 리포트 조회 테스트"""
+        """여러 게임 레포트 조회 테스트"""
         # 추가 게임 생성
         game2 = Game.objects.create(
             name="BB Star",

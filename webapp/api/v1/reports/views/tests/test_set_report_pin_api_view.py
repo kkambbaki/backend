@@ -25,7 +25,7 @@ class SetReportPinAPIViewTests(TestCase):
         self.url = "/api/v1/reports/set-report-pin/"
 
     def test_set_report_pin_creates_new(self):
-        """새 리포트 PIN 생성 테스트"""
+        """새 레포트 PIN 생성 테스트"""
         self.client.force_authenticate(user=self.user)
 
         data = {"pin": "1234"}
@@ -44,7 +44,7 @@ class SetReportPinAPIViewTests(TestCase):
         self.assertTrue(report_pin.verify_pin("1234"))
 
     def test_set_report_pin_updates_existing(self):
-        """기존 리포트 PIN 업데이트 테스트"""
+        """기존 레포트 PIN 업데이트 테스트"""
         # 기존 PIN 생성
         report_pin = ReportPin.objects.create(
             user=self.user,

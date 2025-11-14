@@ -28,7 +28,7 @@
       - `health_check/`: 헬스체크 API
       - `users/`: 사용자 인증 및 관리 API
       - `games/`: 게임 목록 및 세션 관리 API
-      - `reports/`: 리포트 생성 및 조회 API
+      - `reports/`: 레포트 생성 및 조회 API
 
   - **`users/`**: 사용자 모델 및 관리
     - `models/`: User, Child, BotToken 모델
@@ -43,22 +43,22 @@
     - `views.py`: 게임 뷰 및 랭킹 표시
     - `choices/`: 게임 관련 선택지
 
-  - **`reports/`**: 리포트 생성 및 관리 (가장 복잡한 앱)
+  - **`reports/`**: 레포트 생성 및 관리 (가장 복잡한 앱)
     - `models/`: Report, GameReport, GameReportAdvice, ReportPin 모델
     - `services/`: 비즈니스 로직 서비스
-      - `report_generation_service.py`: 리포트 생성 오케스트레이션
-      - `game_report_generation_service.py`: 게임별 리포트 생성
+      - `report_generation_service.py`: 레포트 생성 오케스트레이션
+      - `game_report_generation_service.py`: 게임별 레포트 생성
       - `report_email_service.py`: 이메일 발송 서비스
       - `base_pdf_generator.py`: PDF 생성 베이스 클래스
     - `llm/`: LLM 통합 (AI 기반 조언 생성)
-      - `generator.py`: LLM 리포트 생성 로직
+      - `generator.py`: LLM 레포트 생성 로직
       - `prompt.py`: LLM 프롬프트 템플릿
       - `provider.py`: LLM 제공자 인터페이스
     - `tasks/`: Celery 비동기 작업
-      - `report_task.py`: 리포트 생성 작업
+      - `report_task.py`: 레포트 생성 작업
       - `report_email_task.py`: 이메일 발송 작업
-    - `admin/`: 리포트 관리자 페이지
-    - `authentication.py`: 리포트 접근 인증
+    - `admin/`: 레포트 관리자 페이지
+    - `authentication.py`: 레포트 접근 인증
     - `management/commands/`: Django 관리 명령어
 
   - **`static/`**: 정적 파일 (CSS, JS, 이미지)
@@ -74,7 +74,7 @@
 
 - **`.github/workflows/`**: GitHub Actions 워크플로우
   - `CI.yml`: 테스트 실행
-  - `generate_coverage_report.yml`: 커버리지 리포트 생성
+  - `generate_coverage_report.yml`: 커버리지 레포트 생성
   - `create_swagger_file.yml`: Swagger 문서 생성
 
 ### docker / docker-compose 관련 구성
@@ -146,7 +146,7 @@ GitHub 저장소의 Settings > Secrets and variables > Actions에서 다음 시�
 - **캐싱**: Redis
 - **관리자 페이지**: Django Unfold (모던한 UI)
 - **코드 품질**: Ruff, MyPy, Bandit
-- **테스트**: Coverage 리포트 자동 생성
+- **테스트**: Coverage 레포트 자동 생성
 - **CamelCase 변환**: 자동 JSON 필드명 변환
 
 ## 개발 시작하기
@@ -233,14 +233,14 @@ cp .env.sample .env  # .env 파일 생성 후 수정
 - `POST /api/v1/games/kids-traffic/start/` - 게임 세션 시작
 - `POST /api/v1/games/kids-traffic/finish/` - 게임 세션 종료 및 결과 저장
 
-### 4. 리포트 (Reports)
+### 4. 레포트 (Reports)
 
 **Base Path**: `/api/v1/reports/`
 
-- `POST /api/v1/reports/` - PIN 인증으로 리포트 상세 조회 (JWT 또는 Bot 인증)
-- `POST /api/v1/reports/status/` - 리포트 생성 상태 확인 및 생성 트리거
-- `POST /api/v1/reports/email/` - 리포트 PDF 이메일 발송
-- `POST /api/v1/reports/set-report-pin/` - 리포트 접근 PIN 설정/변경
+- `POST /api/v1/reports/` - PIN 인증으로 레포트 상세 조회 (JWT 또는 Bot 인증)
+- `POST /api/v1/reports/status/` - 레포트 생성 상태 확인 및 생성 트리거
+- `POST /api/v1/reports/email/` - 레포트 PDF 이메일 발송
+- `POST /api/v1/reports/set-report-pin/` - 레포트 접근 PIN 설정/변경
 
 ### 5. 랭킹 (Ranking)
 
@@ -252,5 +252,5 @@ cp .env.sample .env  # .env 파일 생성 후 수정
 ### 인증 방식
 
 - **JWT (JSON Web Token)**: 대부분의 인증 엔드포인트에 사용
-- **Bot Authentication**: 리포트 접근을 위한 커스텀 인증 (ReportBotAuthentication)
+- **Bot Authentication**: 레포트 접근을 위한 커스텀 인증 (ReportBotAuthentication)
 - **No Authentication**: 헬스체크, 사용자명 확인, 회원가입은 인증 불필요

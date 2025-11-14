@@ -11,7 +11,7 @@ User = get_user_model()
 
 class ReportManager(BaseModelManager):
     def get_or_create_for_user_child(self, user, child):
-        """사용자와 아동에 대한 리포트 조회 또는 생성"""
+        """사용자와 아동에 대한 레포트 조회 또는 생성"""
         report, created = self.get_or_create(
             user=user,
             child=child,
@@ -21,14 +21,14 @@ class ReportManager(BaseModelManager):
 
 class Report(BaseModel):
     """
-    리포트 모델
-    사용자와 아동당 1개만 존재하며, 게임 결과를 종합한 리포트
+    레포트 모델
+    사용자와 아동당 1개만 존재하며, 게임 결과를 종합한 레포트
     """
 
     class Meta:
         db_table = "reports"
-        verbose_name = _("리포트")
-        verbose_name_plural = _("리포트")
+        verbose_name = _("레포트")
+        verbose_name_plural = _("레포트")
         constraints = [
             models.UniqueConstraint(
                 fields=["user", "child"],
@@ -69,8 +69,8 @@ class Report(BaseModel):
         null=False,
         blank=False,
         verbose_name=_("상태"),
-        help_text="리포트의 현재 상태",
+        help_text="레포트의 현재 상태",
     )
 
     def __str__(self):
-        return f"{self.user.username} - {self.child.name} 리포트"
+        return f"{self.user.username} - {self.child.name} 레포트"

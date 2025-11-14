@@ -1,7 +1,7 @@
 """
 Report Email Service
 
-PDF 리포트를 이메일로 전송하는 서비스입니다.
+PDF 레포트를 이메일로 전송하는 서비스입니다.
 """
 
 import logging
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class ReportEmailService(FileAttachmentEmailService):
     """
-    PDF 리포트를 생성하고 이메일로 전송하는 서비스
+    PDF 레포트를 생성하고 이메일로 전송하는 서비스
 
     Usage:
         service = ReportEmailService()
@@ -40,7 +40,7 @@ class ReportEmailService(FileAttachmentEmailService):
             str: 이메일 제목
         """
         site_name = kwargs.get("site_name", "깜빡이")
-        return f"[{site_name}] 집중력 분석 리포트가 도착했습니다"
+        return f"[{site_name}] 집중력 분석 레포트가 도착했습니다"
 
     def get_body(self, **kwargs) -> str:
         """
@@ -80,7 +80,7 @@ class ReportEmailService(FileAttachmentEmailService):
                     <tr>
                         <td align="center" style="background-color: #FFF4DF; padding: 30px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; border-radius: 0 0 5px 5px; font-size: 1.5em;">
                             <p style="margin: 0 0 15px 0;">안녕하세요,</p>
-                            <p style="margin: 0 0 15px 0;">집중력 분석 리포트가 도착했습니다.</p>
+                            <p style="margin: 0 0 15px 0;">집중력 분석 레포트가 도착했습니다.</p>
                             <p style="margin: 0 0 15px 0;">첨부된 PDF 파일을 확인해 주세요.</p>
                             <p style="margin: 0;">감사합니다.</p>
                         </td>
@@ -169,11 +169,11 @@ class ReportEmailService(FileAttachmentEmailService):
         site_name: str = "깜빡이",
     ) -> dict:
         """
-        PDF 리포트를 생성하고 이메일로 전송합니다.
+        PDF 레포트를 생성하고 이메일로 전송합니다.
 
         Args:
             to_email: 수신자 이메일 주소
-            site_url: 리포트를 생성할 사이트 URL
+            site_url: 레포트를 생성할 사이트 URL
             pdf_file_path: 이미 생성된 PDF 파일 경로 (선택, None이면 site_url로부터 새로 생성)
             pdf_filename: PDF 첨부 파일명 (기본값: report.pdf)
             site_name: 사이트 이름 (기본값: 깜빡이)

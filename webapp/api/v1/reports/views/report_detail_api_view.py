@@ -12,7 +12,7 @@ from common.permissions.active_user_permission import ActiveUserPermission
 from common.views import BaseAPIView
 
 
-@extend_schema(tags=["리포트"])
+@extend_schema(tags=["레포트"])
 class ReportDetailAPIView(BaseAPIView):
     authentication_classes = [
         JWTAuthentication,
@@ -22,20 +22,20 @@ class ReportDetailAPIView(BaseAPIView):
 
     @extend_schema(
         operation_id="post_report_detail",
-        summary="리포트 상세 조회",
-        description="특정 아동에 대한 리포트 상세 정보를 조회합니다. JWT 인증 사용 시 PIN 번호가 필요하며, Bot 인증 사용 시 PIN 검증을 건너뜁니다.",
+        summary="레포트 상세 조회",
+        description="특정 아동에 대한 레포트 상세 정보를 조회합니다. JWT 인증 사용 시 PIN 번호가 필요하며, Bot 인증 사용 시 PIN 검증을 건너뜁니다.",
         request=ReportPinVerificationSerializer,
         responses={
             200: OpenApiResponse(
                 response=ReportDetailSerializer,
-                description="리포트 조회 성공",
+                description="레포트 조회 성공",
             ),
             400: OpenApiResponse(description="잘못된 PIN 번호"),
-            404: OpenApiResponse(description="리포트를 찾을 수 없음"),
+            404: OpenApiResponse(description="레포트를 찾을 수 없음"),
         },
     )
     def post(self, request):
-        """리포트 상세 조회 (PIN 인증)"""
+        """레포트 상세 조회 (PIN 인증)"""
         # JWT 인증일 경우에만 PIN 검증 진행
         if not isinstance(request.successful_authenticator, ReportBotAuthentication):
             try:
@@ -59,7 +59,7 @@ class ReportDetailAPIView(BaseAPIView):
         except Exception:
             raise NotFoundError(message="등록된 자녀 정보가 없습니다.")
 
-        # 리포트 조회
+        # 레포트 조회
         try:
             report = (
                 Report.objects.select_related("child", "user")
@@ -72,7 +72,7 @@ class ReportDetailAPIView(BaseAPIView):
                 .get(user=request.user, child=child)
             )
         except Report.DoesNotExist:
-            raise NotFoundError(message="리포트를 찾을 수 없습니다.")
+            raise NotFoundError(message="레포트를 찾을 수 없습니다.")
 
         serializer = ReportDetailSerializer(report)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -44,10 +44,10 @@ class ReportAdviceGenerator(ABC):
         self.chain = self.prompt | self.llm | self.parser
 
     def generate_advice(self, report_data: dict) -> list:
-        """리포트 데이터를 기반으로 조언 생성 (Template Method)
+        """레포트 데이터를 기반으로 조언 생성 (Template Method)
 
         Args:
-            report_data: 리포트 정보를 담은 딕셔너리
+            report_data: 레포트 정보를 담은 딕셔너리
 
         Returns:
             생성된 조언 딕셔너리 리스트, 각 딕셔너리는 'title'과 'description' 키를 포함
@@ -86,10 +86,10 @@ class ReportAdviceGenerator(ABC):
 
     @abstractmethod
     def _prepare_payload(self, report_data: dict) -> dict:
-        """리포트 데이터를 LLM 체인에 전달할 payload로 변환
+        """레포트 데이터를 LLM 체인에 전달할 payload로 변환
 
         Args:
-            report_data: 리포트 정보를 담은 딕셔너리
+            report_data: 레포트 정보를 담은 딕셔너리
 
         Returns:
             LLM 체인에 전달할 딕셔너리
@@ -98,7 +98,7 @@ class ReportAdviceGenerator(ABC):
 
     @abstractmethod
     def get_prompt(self):
-        """특정 리포트 유형에 대한 프롬프트 템플릿을 가져옵니다.
+        """특정 레포트 유형에 대한 프롬프트 템플릿을 가져옵니다.
 
         Returns:
             ChatPromptTemplate 인스턴스
@@ -116,10 +116,10 @@ class ReportAdviceGenerator(ABC):
 
 
 class KidsTrafficGameReportAdviceGenerator(ReportAdviceGenerator):
-    """꼬마 교통지킴이 게임 리포트 조언 생성기"""
+    """꼬마 교통지킴이 게임 레포트 조언 생성기"""
 
     def get_prompt(self) -> ChatPromptTemplate:
-        """꼬마 교통지킴이 게임 리포트에 대한 프롬프트 템플릿을 가져옵니다."""
+        """꼬마 교통지킴이 게임 레포트에 대한 프롬프트 템플릿을 가져옵니다."""
         return get_kids_traffic_game_report_prompt()
 
     def get_response_model(self):
@@ -128,10 +128,10 @@ class KidsTrafficGameReportAdviceGenerator(ReportAdviceGenerator):
 
     def _prepare_payload(self, report_data: dict) -> dict:
         """
-        꼬마 교통지킴이 게임 리포트 데이터를 LLM payload로 변환
+        꼬마 교통지킴이 게임 레포트 데이터를 LLM payload로 변환
 
         Args:
-            report_data: 리포트 정보를 담은 딕셔너리, 다음 키 포함:
+            report_data: 레포트 정보를 담은 딕셔너리, 다음 키 포함:
                 - total_plays_count: 전체 플레이 횟수
                 - total_play_rounds_count: 전체 플레이 라운드 수
                 - max_rounds_count: 최대 라운드 도달 횟수
@@ -163,10 +163,10 @@ class KidsTrafficGameReportAdviceGenerator(ReportAdviceGenerator):
 
 
 class BBStarGameReportAdviceGenerator(ReportAdviceGenerator):
-    """뿅뿅 아기별 게임 리포트 조언 생성기"""
+    """뿅뿅 아기별 게임 레포트 조언 생성기"""
 
     def get_prompt(self) -> ChatPromptTemplate:
-        """뿅뿅 아기별 게임 리포트에 대한 프롬프트 템플릿을 가져옵니다."""
+        """뿅뿅 아기별 게임 레포트에 대한 프롬프트 템플릿을 가져옵니다."""
         return get_bb_star_game_report_prompt()
 
     def get_response_model(self):
@@ -175,10 +175,10 @@ class BBStarGameReportAdviceGenerator(ReportAdviceGenerator):
 
     def _prepare_payload(self, report_data: dict) -> dict:
         """
-        뿅뿅 아기별 게임 리포트 데이터를 LLM payload로 변환
+        뿅뿅 아기별 게임 레포트 데이터를 LLM payload로 변환
 
         Args:
-            report_data: 리포트 정보를 담은 딕셔너리, 다음 키 포함:
+            report_data: 레포트 정보를 담은 딕셔너리, 다음 키 포함:
                 - total_plays_count: 전체 플레이 횟수
                 - total_play_rounds_count: 전체 플레이 라운드 수
                 - max_rounds_count: 최대 라운드 도달 횟수

@@ -14,7 +14,7 @@ from common.admin.utils import (
 
 
 class GameReportAdviceInline(TabularInline):
-    """게임 리포트 조언 인라인"""
+    """게임 레포트 조언 인라인"""
 
     model = GameReportAdvice
     extra = 0
@@ -41,7 +41,7 @@ class GameReportAdviceInline(TabularInline):
 
 @admin.register(GameReport)
 class GameReportAdmin(ModelAdmin):
-    """게임 리포트 관리자 페이지"""
+    """게임 레포트 관리자 페이지"""
 
     list_display = (
         "id",
@@ -109,7 +109,7 @@ class GameReportAdmin(ModelAdmin):
     show_full_result_count = True
 
     def report_info(self, obj):
-        """리포트 정보 표시"""
+        """레포트 정보 표시"""
         if obj.report:
             return render_two_line_info(
                 f"{obj.report.user.username} - {obj.report.child.name}",
@@ -117,7 +117,7 @@ class GameReportAdmin(ModelAdmin):
             )
         return "-"
 
-    report_info.short_description = "리포트"
+    report_info.short_description = "레포트"
     report_info.admin_order_field = "report__user__username"
 
     def game_info(self, obj):

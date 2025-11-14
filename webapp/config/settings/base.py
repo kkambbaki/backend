@@ -348,10 +348,13 @@ OPENAI_MODEL = env("OPENAI_MODEL", default="gpt-4.1")
 
 # ========== Frontend settings ==========
 
-# 프론트엔드 리포트 URL (BOT 토큰을 사용하여 PDF 생성)
+# 프론트엔드 레포트 URL (BOT 토큰을 사용하여 PDF 생성)
 FRONTEND_REPORT_URL = env(
     "FRONTEND_REPORT_URL",
     default="https://frontend-git-dev-yuwon.vercel.app/reports/",
 )
 
 # ========== END Frontend settings ==========
+
+REPORT_WIDTH = env.str("REPORT_WIDTH", default="15in")
+REPORT_HEIGHT = env.str("REPORT_HEIGHT", default="30in")

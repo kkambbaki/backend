@@ -48,7 +48,7 @@ class ReportAdminTests(TestCase):
             is_active=True,
         )
 
-        # 리포트 생성
+        # 레포트 생성
         self.report = Report.objects.create(
             user=self.user,
             child=self.child,
@@ -56,7 +56,7 @@ class ReportAdminTests(TestCase):
             status=ReportStatusChoice.COMPLETED,
         )
 
-        # 게임 리포트 생성
+        # 게임 레포트 생성
         self.game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,
@@ -230,7 +230,7 @@ class ReportAdminTests(TestCase):
 
     def test_game_reports_count_short_description(self):
         """game_reports_count의 short_description 테스트"""
-        self.assertEqual(self.report_admin.game_reports_count.short_description, "게임 리포트 수")
+        self.assertEqual(self.report_admin.game_reports_count.short_description, "게임 레포트 수")
 
     def test_get_queryset_optimization(self):
         """get_queryset 메서드의 최적화 테스트"""
@@ -286,7 +286,7 @@ class ReportAdminTests(TestCase):
                 },
             ),
             (
-                "리포트 상세",
+                "레포트 상세",
                 {
                     "fields": (
                         "concentration_score",
@@ -379,13 +379,13 @@ class GameReportInlineTests(TestCase):
             is_active=True,
         )
 
-        # 리포트 생성
+        # 레포트 생성
         self.report = Report.objects.create(
             user=self.user,
             child=self.child,
         )
 
-        # 게임 리포트 생성
+        # 게임 레포트 생성
         self.game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,

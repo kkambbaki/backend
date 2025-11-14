@@ -7,7 +7,7 @@ COLOR_RED = "#F44336"
 COLOR_BLUE = "#2196F3"
 COLOR_GREY = "#9E9E9E"
 
-# 리포트 상태별 색상 맵핑
+# 레포트 상태별 색상 맵핑
 REPORT_STATUS_COLORS = {
     "no_games_played": COLOR_GREY,
     "pending": COLOR_BLUE,

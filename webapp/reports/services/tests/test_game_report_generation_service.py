@@ -43,7 +43,7 @@ class GameReportGenerationServiceTests(TestCase):
         self.session = GameSession.objects.create(parent=self.user, game=self.game, child=self.child)
 
     def test_update_or_create_game_report_creates_new(self):
-        """새 게임 리포트 생성 테스트"""
+        """새 게임 레포트 생성 테스트"""
         # 게임 결과 생성
         GameResult.objects.create(
             child=self.child,
@@ -112,7 +112,7 @@ class GameReportGenerationServiceTests(TestCase):
             game=self.game,
         )
 
-        # 검증 - 결과가 없으면 기존 리포트 반환
+        # 검증 - 결과가 없으면 기존 레포트 반환
         self.assertIsNotNone(game_report)
 
     def test_update_game_report_statistics_skips_when_up_to_date(self):
@@ -128,7 +128,7 @@ class GameReportGenerationServiceTests(TestCase):
             score=100,
         )
 
-        # 게임 리포트 생성 및 최신 세션으로 설정
+        # 게임 레포트 생성 및 최신 세션으로 설정
         game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,
@@ -141,7 +141,7 @@ class GameReportGenerationServiceTests(TestCase):
             game=self.game,
         )
 
-        # 검증 - 업데이트 건너뛰고 기존 리포트 반환
+        # 검증 - 업데이트 건너뛰고 기존 레포트 반환
         self.assertEqual(result.id, game_report.id)
 
     @patch("reports.services.game_report_generation_service.KidsTrafficGameReportAdviceGenerator")
@@ -161,7 +161,7 @@ class GameReportGenerationServiceTests(TestCase):
         ]
         mock_generator_class.return_value = mock_generator
 
-        # 게임 리포트 생성
+        # 게임 레포트 생성
         game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,
@@ -206,7 +206,7 @@ class GameReportGenerationServiceTests(TestCase):
         ]
         mock_generator_class.return_value = mock_generator
 
-        # 게임 리포트 생성
+        # 게임 레포트 생성
         game_report = GameReport.objects.create(
             report=self.report,
             game=bb_game,
@@ -231,7 +231,7 @@ class GameReportGenerationServiceTests(TestCase):
 
     def test_generate_game_report_advice_skips_when_no_data(self):
         """데이터가 없을 때 조언 생성 건너뛰기 테스트"""
-        # 게임 리포트 생성 (플레이 횟수 0)
+        # 게임 레포트 생성 (플레이 횟수 0)
         game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,
@@ -256,7 +256,7 @@ class GameReportGenerationServiceTests(TestCase):
         mock_generator.generate_advice.side_effect = Exception("LLM API timeout")
         mock_generator_class.return_value = mock_generator
 
-        # 게임 리포트 생성
+        # 게임 레포트 생성
         game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,
@@ -288,7 +288,7 @@ class GameReportGenerationServiceTests(TestCase):
             is_active=True,
         )
 
-        # 게임 리포트 생성
+        # 게임 레포트 생성
         game_report = GameReport.objects.create(
             report=self.report,
             game=unknown_game,
@@ -320,7 +320,7 @@ class GameReportGenerationServiceTests(TestCase):
         ]
         mock_generator_class.return_value = mock_generator
 
-        # 게임 리포트 및 기존 조언 생성
+        # 게임 레포트 및 기존 조언 생성
         game_report = GameReport.objects.create(
             report=self.report,
             game=self.game,

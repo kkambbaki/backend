@@ -15,9 +15,9 @@ FRONTEND_REPORT_URL = settings.FRONTEND_REPORT_URL
 
 
 class SendReportEmailView(UnfoldModelAdminViewMixin, FormView):
-    """리포트 이메일 전송 Custom Page"""
+    """레포트 이메일 전송 Custom Page"""
 
-    title = "리포트 이메일 전송"
+    title = "레포트 이메일 전송"
     permission_required = ()
     template_name = "admin/reports/report/send_email_page.html"
     form_class = SendReportEmailForm
@@ -51,7 +51,7 @@ class SendReportEmailView(UnfoldModelAdminViewMixin, FormView):
         # 성공 메시지 표시
         messages.success(
             self.request,
-            f"리포트 이메일 전송이 시작되었습니다. ({to_email})",
+            f"레포트 이메일 전송이 시작되었습니다. ({to_email})",
         )
 
         # detail 페이지로 리다이렉트

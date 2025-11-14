@@ -34,7 +34,7 @@ class ReportEmailAPIViewTests(TestCase):
 
     @patch("api.v1.reports.views.report_email_api_view.send_report_email_task.delay")
     def test_send_report_email_success(self, mock_task):
-        """리포트 이메일 전송 성공 테스트"""
+        """레포트 이메일 전송 성공 테스트"""
         self.client.force_authenticate(user=self.user)
 
         data = {"email": "recipient@example.com"}
@@ -209,7 +209,7 @@ class ReportEmailAPIViewTests(TestCase):
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["message"], "리포트 이메일 전송이 시작되었습니다.")
+        self.assertEqual(response.data["message"], "레포트 이메일 전송이 시작되었습니다.")
 
     @patch("api.v1.reports.views.report_email_api_view.send_report_email_task.delay")
     def test_send_report_email_with_empty_email_string(self, mock_task):

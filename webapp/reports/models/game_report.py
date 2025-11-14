@@ -16,7 +16,7 @@ class GameReportManager(BaseModelManager):
         return self.filter(game=game)
 
     def get_or_create_for_report_and_game(self, report, game):
-        """리포트와 게임에 대한 게임 리포트 조회 또는 생성"""
+        """레포트와 게임에 대한 게임 레포트 조회 또는 생성"""
         game_report, created = self.get_or_create(
             report=report,
             game=game,
@@ -26,14 +26,14 @@ class GameReportManager(BaseModelManager):
 
 class GameReport(BaseModel):
     """
-    게임별 리포트 모델
-    특정 리포트 내의 각 게임에 대한 결과 및 분석
+    게임별 레포트 모델
+    특정 레포트 내의 각 게임에 대한 결과 및 분석
     """
 
     class Meta:
         db_table = "game_reports"
-        verbose_name = _("게임 리포트")
-        verbose_name_plural = _("게임 리포트")
+        verbose_name = _("게임 레포트")
+        verbose_name_plural = _("게임 레포트")
         constraints = [
             models.UniqueConstraint(
                 fields=["report", "game"],
@@ -50,7 +50,7 @@ class GameReport(BaseModel):
         related_name="game_reports",
         null=False,
         blank=False,
-        verbose_name=_("리포트"),
+        verbose_name=_("레포트"),
     )
     game = models.ForeignKey(
         "games.Game",
@@ -182,7 +182,7 @@ class GameReport(BaseModel):
 
     def is_up_to_date(self):
         """
-        현재 게임 리포트가 최신 GameSession을 반영하고 있는지 확인
+        현재 게임 레포트가 최신 GameSession을 반영하고 있는지 확인
 
         Returns:
             bool: 최신 세션을 반영하고 있으면 True, 아니면 False
@@ -196,7 +196,7 @@ class GameReport(BaseModel):
 
     def get_game_results(self):
         """
-        해당 게임 리포트에 해당하는 모든 게임 결과 조회
+        해당 게임 레포트에 해당하는 모든 게임 결과 조회
 
         Returns:
             QuerySet: GameResult 쿼리셋

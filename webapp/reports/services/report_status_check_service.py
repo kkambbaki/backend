@@ -40,13 +40,13 @@ class ReportStatusCheckService:
             )
             return
 
-        # 리포트 생성 작업 트리거
+        # 레포트 생성 작업 트리거
         try:
             # GENERATING 상태로 변경
             locked_report.status = ReportStatusChoice.GENERATING
             locked_report.save(update_fields=["status"])
 
-            # Celery task를 통해 비동기로 리포트 생성 실행
+            # Celery task를 통해 비동기로 레포트 생성 실행
             generate_report_task.delay(
                 user_id=locked_report.user.id,
                 child_id=self.child.id,

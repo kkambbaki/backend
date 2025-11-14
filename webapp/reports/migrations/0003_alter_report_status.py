@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                     ("error", "오류 발생"),
                 ],
                 default="no_games_played",
-                help_text="리포트의 현재 상태",
+                help_text="레포트의 현재 상태",
                 max_length=20,
                 verbose_name="상태",
             ),
