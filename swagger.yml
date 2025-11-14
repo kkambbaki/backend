@@ -1,0 +1,1589 @@
+openapi: 3.0.3
+info:
+  title: kkambbaki API
+  version: 1.0.0
+  description: API for kkambbaki Web / Mobile Application
+  contact:
+    name: shinkeonkim
+    email: dev.shinkeonkim@gmail.com
+paths:
+  /api/v1/games/:
+    get:
+      operationId: listActiveGames
+      description: 현재 활성화되어 있는 게임들의 목록을 조회합니다.
+      summary: 활성화된 게임 목록 조회
+      tags:
+      - 게임
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGameListList'
+          description: 게임 목록 조회 성공
+  /api/v1/games/bb-star/finish/:
+    post:
+      operationId: finishBbStarGame
+      description: |-
+        뿅뿅 아기별 게임 세션을 종료하고 결과 저장
+
+        **요청 필드:**
+        - `session_id` (필수): 게임 시작 API에서 받은 세션 ID (UUID)
+        - `score` (필수): 게임 전체 총 점수
+        - `wrong_count` (선택): 게임 전체 틀린 개수 (기본값: 0)
+        - `round_count` (선택): 게임 전체 라운드 수 (최대 10)
+        - `success_count` (선택): 게임 전체 성공한 라운드 수
+        - `meta` (선택): 라운드별 상세 데이터
+
+        **meta 필드 구조:**
+        ```json
+        {
+          "round_details": [
+            {
+              "round_number": 1,
+              "score": 5,
+              "wrong_count": 0,
+              "is_success": true,
+              "time_limit_exceeded": false
+            }
+          ]
+        }
+        ```
+
+        **주의사항:**
+        - 뿅뿅아기별 게임은 시간 측정이 없으므로 `reaction_ms_sum` 필드를 보내지 않음
+        - `meta.round_details`의 각 라운드에도 `reaction_ms_sum` 필드가 없음
+        - 동일한 세션을 두 번 종료하려고 하면 422 에러가 발생
+      summary: 뿅뿅 아기별 게임 종료
+      tags:
+      - 게임 - 뿅뿅 아기별
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BBStarFinish'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BBStarFinish'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BBStarFinish'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BBStarFinishResponse'
+          description: |-
+            게임 세션 종료 성공. 저장된 게임 결과를 반환
+
+            **응답 필드:**
+            - `session_id`: 게임 세션 ID
+            - `game_code`: 게임 코드 ('BB_STAR')
+            - `score`: 게임 전체 총 점수
+            - `wrong_count`: 게임 전체 틀린 개수
+            - `round_count`: 게임 전체 라운드 수
+            - `success_count`: 게임 전체 성공한 라운드 수
+            - `meta`: 라운드별 상세 데이터 (시간 관련 필드 없음)
+        '404':
+          description: 세션을 찾을 수 없거나 접근 권한이 없습니다.
+        '422':
+          description: 이미 완료된 세션입니다.
+  /api/v1/games/bb-star/start/:
+    post:
+      operationId: startBbStarGame
+      description: |-
+        뿅뿅 아기별 게임 세션을 시작합니다.
+
+        **게임 설명:**
+        - 깜빡이는 별의 순서를 기억하고 올바른 순서로 클릭하는 게임
+        - 최대 10라운드까지 진행되며, 각 라운드마다 별의 개수가 증가
+        - 시간 제한이 있으며, 시간 내에 올바른 순서로 클릭해야 함
+
+        **응답 필드:**
+        - `session_id`: 게임 종료 API 호출 시 필요한 세션 ID (UUID)
+        - `game_code`: 게임 코드 ('BB_STAR')
+        - `started_at`: 게임 시작 시각
+        - `status`: 세션 상태 ('STARTED')
+
+        **주의사항:**
+        - 게임 종료 API 호출 시 반드시 이 API에서 받은 `session_id`를 사용해야 함
+      summary: 뿅뿅 아기별 게임 시작
+      tags:
+      - 게임 - 뿅뿅 아기별
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameStartResponse'
+          description: 게임 세션 시작 성공. `session_id`를 저장하여 게임 종료 시 사용
+        '404':
+          description: 게임(뿅뿅 아기별)이 활성화되어 있지 않거나 아이를 찾을 수 없습니다.
+  /api/v1/games/kids-traffic/finish/:
+    post:
+      operationId: finishKidsTrafficGame
+      description: |-
+        꼬마 교통지킴이 게임 세션을 종료하고 결과 저장
+
+        **요청 필드:**
+        - `session_id` (필수): 게임 시작 API에서 받은 세션 ID (UUID)
+        - `score` (필수): 게임 전체 총 점수
+        - `wrong_count` (선택): 게임 전체 틀린 개수 (기본값: 0)
+        - `reaction_ms_sum` (선택): 게임 전체 반응시간 합계 (밀리초 단위)
+        - `round_count` (선택): 게임 전체 라운드 수 (최대 10)
+        - `success_count` (선택): 게임 전체 성공한 라운드 수
+        - `meta` (선택): 라운드별 상세 데이터
+
+        **meta 필드 구조:**
+        ```json
+        {
+          "round_details": [
+            {
+              "round_number": 1,
+              "score": 3,
+              "wrong_count": 0,
+              "reaction_ms_sum": 1500,
+              "is_success": true,
+              "time_limit_exceeded": false
+            }
+          ]
+        }
+        ```
+
+        **주의사항:**
+        - 교통지킴이 게임은 반응 시간 측정이 중요하므로 `reaction_ms_sum` 필드를 포함하는 것을 권장
+        - `meta.round_details`의 각 라운드에도 `reaction_ms_sum` 필드를 포함할 수 있음
+        - 동일한 세션을 두 번 종료하려고 하면 422 에러가 발생
+      summary: 꼬마 교통지킴이 게임 종료
+      tags:
+      - 게임 - 꼬마 교통지킴이
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KidsTrafficFinish'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KidsTrafficFinish'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KidsTrafficFinish'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KidsTrafficFinishResponse'
+          description: |-
+            게임 세션 종료 성공. 저장된 게임 결과를 반환
+
+            **응답 필드:**
+            - `session_id`: 게임 세션 ID
+            - `game_code`: 게임 코드 ('KIDS_TRAFFIC')
+            - `score`: 게임 전체 총 점수
+            - `wrong_count`: 게임 전체 틀린 개수
+            - `reaction_ms_sum`: 게임 전체 반응시간 합계 (밀리초)
+            - `round_count`: 게임 전체 라운드 수
+            - `success_count`: 게임 전체 성공한 라운드 수
+            - `meta`: 라운드별 상세 데이터 (반응시간 정보 포함)
+        '404':
+          description: 세션을 찾을 수 없거나 접근 권한이 없습니다.
+        '422':
+          description: 이미 완료된 세션입니다.
+  /api/v1/games/kids-traffic/start/:
+    post:
+      operationId: startKidsTrafficGame
+      description: |-
+        꼬마 교통지킴이 게임 세션을 시작합니다.
+
+        **게임 설명:**
+        - 신호등 게임으로, 빨간불/초록불에 맞춰 '멈춰!'/'달려!' 버튼을 누르는 게임
+        - 최대 10라운드까지 진행되며, 각 라운드마다 신호등 변화 속도가 빨라짐
+        - 신호등에 맞지 않는 버튼을 누르면 실패 횟수가 증가하며, 3회 실패 시 게임 종료
+        - 반응 시간을 측정하여 집중력과 반응 속도를 평가
+
+        **응답 필드:**
+        - `session_id`: 게임 종료 API 호출 시 필요한 세션 ID (UUID)
+        - `game_code`: 게임 코드 ('KIDS_TRAFFIC')
+        - `started_at`: 게임 시작 시각
+        - `status`: 세션 상태 ('STARTED')
+
+        **주의사항:**
+        - 게임 종료 API 호출 시 반드시 이 API에서 받은 `session_id`를 사용해야함
+      summary: 꼬마 교통지킴이 게임 시작
+      tags:
+      - 게임 - 꼬마 교통지킴이
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameStartResponse'
+          description: 게임 세션 시작 성공. `session_id`를 저장하여 게임 종료 시 사용
+        '404':
+          description: 게임(꼬마 교통지킴이)이 활성화되어 있지 않거나 아이를 찾을 수 없습니다.
+  /api/v1/health-check/:
+    get:
+      operationId: healthCheck
+      description: Check the health status of the application.
+      summary: Application Health Check
+      tags:
+      - Health Check
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+              examples:
+                HealthyResponse:
+                  value:
+                    status: ok
+                  summary: Healthy response
+          description: Application is healthy and running
+  /api/v1/reports/:
+    post:
+      operationId: postReportDetail
+      description: 특정 아동에 대한 레포트 상세 정보를 조회합니다. JWT 인증 사용 시 PIN 번호가 필요하며, Bot 인증 사용
+        시 PIN 검증을 건너뜁니다.
+      summary: 레포트 상세 조회
+      tags:
+      - 레포트
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReportPinVerification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportPinVerification'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportPinVerification'
+        required: true
+      security:
+      - jwtAuth: []
+      - ReportBotAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportDetail'
+          description: 레포트 조회 성공
+        '400':
+          description: 잘못된 PIN 번호
+        '404':
+          description: 레포트를 찾을 수 없음
+  /api/v1/reports/email/:
+    post:
+      operationId: sendReportEmail
+      description: "\n        레포트를 PDF로 생성하여 이메일로 전송합니다.\n\n        - email 파라미터가\
+        \ 없으면 request.user.email을 사용합니다.\n        - BOT 토큰을 자동으로 생성하여 프론트엔드 URL에 첨부합니다.\n\
+        \        - PDF를 생성하고 지정된 이메일로 전송합니다.\n        "
+      summary: 레포트 이메일 전송
+      tags:
+      - 레포트
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReportEmail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportEmail'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportEmail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: 이메일 전송 성공
+        '400':
+          description: 잘못된 요청
+        '404':
+          description: 사용자 이메일이 없음
+  /api/v1/reports/set-report-pin/:
+    post:
+      operationId: set Report Pin
+      description: 레포트 핀을 설정합니다.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetReportPinRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SetReportPinRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetReportPinRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetReportPinResponse'
+          description: 레포트 핀 설정 성공
+  /api/v1/reports/status/:
+    post:
+      operationId: getReportStatus
+      description: "\n        특정 아동에 대한 레포트 생성 상태를 조회합니다.\n\n        상태가 생성되지 않은 경우\
+        \ 자동으로 생성을 트리거하고 GENERATING 상태를 반환합니다.\n        이후 다시 호출하면 업데이트된 상태(COMPLETED,\
+        \ ERROR 등)를 확인할 수 있습니다.\n        "
+      summary: 레포트 상태 조회
+      tags:
+      - 레포트
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReportStatus'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportStatus'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportStatus'
+      security:
+      - ReportBotAuthentication: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportStatus'
+          description: 레포트 상태 조회 성공
+        '404':
+          description: 아동을 찾을 수 없음
+  /api/v1/users/check-username/:
+    get:
+      operationId: apiV1UsersCheckUsernameRetrieve
+      description: 회원가입 시 username이 이미 사용 중인지 확인합니다.
+      summary: Username 중복 확인
+      parameters:
+      - in: query
+        name: username
+        schema:
+          type: string
+        description: 확인할 username
+        required: true
+      tags:
+      - Users
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exists:
+                    type: boolean
+                    description: username이 이미 사용 중인지 여부
+          description: ''
+  /api/v1/users/child/:
+    get:
+      operationId: get Child Info
+      description: 자녀 정보를 조회합니다.
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Child'
+          description: 자녀 정보 조회 성공
+    post:
+      operationId: update Child Info
+      description: 자녀 정보를 수정합니다.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Child'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Child'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Child'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Child'
+          description: 자녀 정보 수정 성공
+  /api/v1/users/email/:
+    patch:
+      operationId: apiV1UsersEmailPartialUpdate
+      description: 로그인한 사용자의 이메일을 수정합니다.
+      summary: 사용자 이메일 수정
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailUpdate'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailUpdate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+          description: ''
+  /api/v1/users/login/:
+    post:
+      operationId: apiV1UsersLoginCreate
+      description: |-
+        Check the credentials and return the REST Token
+        if the credentials are valid and authenticated.
+        Calls Django Auth login method to register User ID
+        in Django session framework
+
+        Accept the following POST parameters: username, password
+        Return the REST Framework Token Object's key.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JWT'
+          description: ''
+  /api/v1/users/logout/:
+    post:
+      operationId: apiV1UsersLogoutCreate
+      description: |-
+        Calls Django logout method and delete the Token object
+        assigned to the current User object.
+
+        Accepts/Returns nothing.
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /api/v1/users/password/change/:
+    post:
+      operationId: apiV1UsersPasswordChangeCreate
+      description: |-
+        Calls Django Auth SetPasswordForm save method.
+
+        Accepts the following POST parameters: new_password1, new_password2
+        Returns the success/fail message.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /api/v1/users/password/reset/:
+    post:
+      operationId: apiV1UsersPasswordResetCreate
+      description: |-
+        Calls Django Auth PasswordResetForm save method.
+
+        Accepts the following POST parameters: email
+        Returns the success/fail message.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordReset'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordReset'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordReset'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /api/v1/users/password/reset/confirm/:
+    post:
+      operationId: apiV1UsersPasswordResetConfirmCreate
+      description: |-
+        Password reset e-mail link is confirmed, therefore
+        this resets the user's password.
+
+        Accepts the following POST parameters: token, uid,
+            new_password1, new_password2
+        Returns the success/fail message.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /api/v1/users/registration/:
+    post:
+      operationId: apiV1UsersRegistrationCreate
+      description: |-
+        Registers a new user.
+
+        Accepts the following POST parameters: username, email, password1, password2.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JWT'
+          description: ''
+  /api/v1/users/registration/resend-email/:
+    post:
+      operationId: apiV1UsersRegistrationResendEmailCreate
+      description: |-
+        Resends another email to an unverified email.
+
+        Accepts the following POST parameter: email.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResendEmailVerification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResendEmailVerification'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendEmailVerification'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /api/v1/users/registration/verify-email/:
+    post:
+      operationId: apiV1UsersRegistrationVerifyEmailCreate
+      description: |-
+        Verifies the email associated with the provided key.
+
+        Accepts the following POST parameter: key.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /api/v1/users/token/refresh/:
+    post:
+      operationId: apiV1UsersTokenRefreshCreate
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/v1/users/token/verify/:
+    post:
+      operationId: apiV1UsersTokenVerifyCreate
+      description: |-
+        Takes a token and indicates if it is valid.  This view provides no
+        information about a token's fitness for a particular use.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenVerify'
+          description: ''
+  /api/v1/users/user/:
+    get:
+      operationId: apiV1UsersUserRetrieve
+      description: |-
+        Reads and updates UserModel fields
+        Accepts GET, PUT, PATCH methods.
+
+        Default accepted fields: username, first_name, last_name
+        Default display fields: pk, username, email, first_name, last_name
+        Read-only fields: pk, email
+
+        Returns UserModel fields.
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+          description: ''
+    put:
+      operationId: apiV1UsersUserUpdate
+      description: |-
+        Reads and updates UserModel fields
+        Accepts GET, PUT, PATCH methods.
+
+        Default accepted fields: username, first_name, last_name
+        Default display fields: pk, username, email, first_name, last_name
+        Read-only fields: pk, email
+
+        Returns UserModel fields.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserDetail'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+          description: ''
+    patch:
+      operationId: apiV1UsersUserPartialUpdate
+      description: |-
+        Reads and updates UserModel fields
+        Accepts GET, PUT, PATCH methods.
+
+        Default accepted fields: username, first_name, last_name
+        Default display fields: pk, username, email, first_name, last_name
+        Read-only fields: pk, email
+
+        Returns UserModel fields.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDetail'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+          description: ''
+  /games/api/ranking/:
+    get:
+      operationId: gamesApiRankingRetrieve
+      description: 게임별 랭킹 데이터 반환
+      tags:
+      - games
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    BBStarFinish:
+      type: object
+      description: 뿅뿅 아기별 게임 종료 Serializer (시간 관련 필드 제외)
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          description: 게임 시작 API에서 받은 세션 ID (UUID). 게임 종료 시 필요
+        score:
+          type: integer
+          description: 게임 전체 총 점수 (Integer). 모든 라운드에서 획득한 점수의 합계
+        wrongCount:
+          type: integer
+          default: 0
+          description: '게임 전체 틀린 개수 (Integer, 기본값: 0). 모든 라운드에서 발생한 오답의 총합'
+        roundCount:
+          type: integer
+          nullable: true
+          description: 게임 전체 라운드 수 (Integer). 플레이한 총 라운드 수(최대 10라운드)
+        successCount:
+          type: integer
+          nullable: true
+          description: 게임 전체 성공한 라운드 수 (Integer). 성공적으로 완료한 라운드의 개수
+        meta:
+          nullable: true
+          description: |-
+            라운드별 상세 데이터 (JSON 객체). 각 라운드의 상세 정보를 포함
+
+            구조:
+            {
+              'round_details': [
+                {
+                  'round_number': 1,              # 라운드 번호 (1부터 시작)
+                  'score': 10,                    # 해당 라운드에서 획득한 점수
+                  'wrong_count': 1,              # 해당 라운드에서 틀린 횟수
+                  'reaction_ms_sum': 1500,       # 해당 라운드 반응시간 합계 (밀리초, 교통지킴이만)
+                  'is_success': true,            # 해당 라운드 성공 여부 (boolean)
+                  'time_limit_exceeded': false   # 제한시간 초과 여부 (boolean)
+                },
+                ...
+              ]
+            }
+
+            참고: 뿅뿅아기별 게임의 round_details에는 'reaction_ms_sum' 필드가 없음
+      required:
+      - score
+      - sessionId
+    BBStarFinishResponse:
+      type: object
+      description: 뿅뿅 아기별 게임 종료 응답 Serializer (시간 관련 필드 제외)
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          readOnly: true
+          description: 게임 세션 고유 식별자 (UUID)
+        gameCode:
+          type: string
+          readOnly: true
+          description: 게임 코드 ('BB_STAR')
+        score:
+          type: integer
+          readOnly: true
+          description: 게임 전체 총 점수 (Integer)
+        wrongCount:
+          type: integer
+          readOnly: true
+          description: 게임 전체 틀린 개수 (Integer)
+        roundCount:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: 게임 전체 라운드 수 (Integer, 최대 10라운드)
+        successCount:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: 게임 전체 성공한 라운드 수 (Integer)
+        meta:
+          readOnly: true
+          nullable: true
+          description: 라운드별 상세 데이터 (JSON 객체). 뿅뿅아기별 게임은 시간 측정이 없으므로 round_details에
+            'reaction_ms_sum' 필드가 포함되지 않음
+      required:
+      - gameCode
+      - meta
+      - roundCount
+      - score
+      - sessionId
+      - successCount
+      - wrongCount
+    Child:
+      type: object
+      description: Serializer for Child model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: 이름
+          maxLength: 50
+        birthYear:
+          type: integer
+          maximum: 32767
+          minimum: 1900
+          title: 생년
+        gender:
+          $ref: '#/components/schemas/GenderEnum'
+      required:
+      - birthYear
+      - id
+      - name
+    GameList:
+      type: object
+      description: 게임 목록 조회 Serializer
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        isActive:
+          type: boolean
+      required:
+      - code
+      - id
+      - isActive
+      - name
+    GameReportAdvice:
+      type: object
+      description: 게임 레포트 조언 Serializer
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+          title: 제목
+          description: 조언 제목
+        description:
+          type: string
+          readOnly: true
+          title: 설명
+          description: 조언 상세 내용
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - createdAt
+      - description
+      - id
+      - title
+    GameReportDetail:
+      type: object
+      description: 게임 레포트 Serializer
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        gameName:
+          type: string
+          readOnly: true
+        gameCode:
+          type: string
+          readOnly: true
+        lastReflectedSessionId:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        isUpToDate:
+          type: boolean
+          readOnly: true
+        totalPlaysCount:
+          type: integer
+          readOnly: true
+          title: 전체 플레이 횟수
+          description: GameResult의 개수
+        totalPlayRoundsCount:
+          type: integer
+          readOnly: true
+          title: 전체 플레이 라운드 수
+          description: GameResult의 round_count 합
+        maxRoundsCount:
+          type: integer
+          readOnly: true
+          title: 최대 도달 라운드 횟수
+          description: game의 max_round와 round_count가 같은 경우의 수
+        totalReactionMsSum:
+          type: integer
+          readOnly: true
+          title: 총 반응시간 합계
+          description: reaction_ms_sum 누적값 (밀리초)
+        totalPlayActionsCount:
+          type: integer
+          readOnly: true
+          title: 전체 플레이 액션 수
+          description: success_count + wrong_count
+        totalSuccessCount:
+          type: integer
+          readOnly: true
+          title: 전체 성공 횟수
+          description: success_count 누적
+        totalWrongCount:
+          type: integer
+          readOnly: true
+          title: 전체 오답 횟수
+          description: wrong_count 누적
+        totalReactionMsAvg:
+          type: integer
+          nullable: true
+          readOnly: true
+        wrongRate:
+          type: number
+          format: double
+          nullable: true
+          readOnly: true
+        avgRoundsCount:
+          type: number
+          format: double
+          nullable: true
+          readOnly: true
+        maxRoundsRatio:
+          type: number
+          format: double
+          readOnly: true
+          nullable: true
+        advices:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameReportAdvice'
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - advices
+      - avgRoundsCount
+      - createdAt
+      - gameCode
+      - gameName
+      - id
+      - isUpToDate
+      - lastReflectedSessionId
+      - maxRoundsCount
+      - maxRoundsRatio
+      - totalPlayActionsCount
+      - totalPlayRoundsCount
+      - totalPlaysCount
+      - totalReactionMsAvg
+      - totalReactionMsSum
+      - totalSuccessCount
+      - totalWrongCount
+      - updatedAt
+      - wrongRate
+    GameStartResponse:
+      type: object
+      description: 게임 시작 응답 공통 Serializer
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          readOnly: true
+          description: 게임 세션 고유 식별자 (UUID). 게임 종료 API 호출 시 필요
+        gameCode:
+          type: string
+          readOnly: true
+          description: '게임 코드 (예: ''BB_STAR'', ''KIDS_TRAFFIC'')'
+        startedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          description: 게임 세션 시작 시각 (ISO 8601 형식)
+        status:
+          type: string
+          readOnly: true
+          description: '게임 세션 상태 (예: ''STARTED'')'
+      required:
+      - gameCode
+      - sessionId
+      - startedAt
+      - status
+    GenderEnum:
+      enum:
+      - M
+      - F
+      - X
+      type: string
+      description: |-
+        * `M` - 남자
+        * `F` - 여자
+        * `X` - 선택 안함
+    HealthCheck:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+    JWT:
+      type: object
+      description: Serializer for JWT authentication.
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserDetail'
+          readOnly: true
+      required:
+      - access
+      - refresh
+      - user
+    KidsTrafficFinish:
+      type: object
+      description: 꼬마 교통지킴이 게임 종료 Serializer
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          description: 게임 시작 API에서 받은 세션 ID (UUID). 게임 종료 시 필요
+        score:
+          type: integer
+          description: 게임 전체 총 점수 (Integer). 모든 라운드에서 획득한 점수의 합계
+        wrongCount:
+          type: integer
+          default: 0
+          description: '게임 전체 틀린 개수 (Integer, 기본값: 0). 모든 라운드에서 발생한 오답의 총합'
+        reactionMsSum:
+          type: integer
+          nullable: true
+          description: 게임 전체 반응시간 합계 (Integer, 밀리초 단위). 모든 라운드의 반응시간을 합산 뿅뿅아기별 게임에서는
+            사용 X
+        roundCount:
+          type: integer
+          nullable: true
+          description: 게임 전체 라운드 수 (Integer). 플레이한 총 라운드 수(최대 10라운드)
+        successCount:
+          type: integer
+          nullable: true
+          description: 게임 전체 성공한 라운드 수 (Integer). 성공적으로 완료한 라운드의 개수
+        meta:
+          nullable: true
+          description: |-
+            라운드별 상세 데이터 (JSON 객체). 각 라운드의 상세 정보를 포함
+
+            구조:
+            {
+              'round_details': [
+                {
+                  'round_number': 1,              # 라운드 번호 (1부터 시작)
+                  'score': 10,                    # 해당 라운드에서 획득한 점수
+                  'wrong_count': 1,              # 해당 라운드에서 틀린 횟수
+                  'reaction_ms_sum': 1500,       # 해당 라운드 반응시간 합계 (밀리초, 교통지킴이만)
+                  'is_success': true,            # 해당 라운드 성공 여부 (boolean)
+                  'time_limit_exceeded': false   # 제한시간 초과 여부 (boolean)
+                },
+                ...
+              ]
+            }
+
+            참고: 뿅뿅아기별 게임의 round_details에는 'reaction_ms_sum' 필드가 없음
+      required:
+      - score
+      - sessionId
+    KidsTrafficFinishResponse:
+      type: object
+      description: 꼬마 교통지킴이 게임 종료 응답 Serializer
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          readOnly: true
+          description: 게임 세션 고유 식별자 (UUID)
+        gameCode:
+          type: string
+          readOnly: true
+          description: 게임 코드 ('KIDS_TRAFFIC')
+        score:
+          type: integer
+          readOnly: true
+          description: 게임 전체 총 점수 (Integer)
+        wrongCount:
+          type: integer
+          readOnly: true
+          description: 게임 전체 틀린 개수 (Integer). 신호등에 맞지 않는 버튼을 누른 횟수
+        roundCount:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: 게임 전체 라운드 수 (Integer, 최대 10라운드)
+        successCount:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: 게임 전체 성공한 라운드 수 (Integer)
+        meta:
+          readOnly: true
+          nullable: true
+          description: 라운드별 상세 데이터 (JSON 객체). 각 라운드의 반응시간 정보가 포함
+        reactionMsSum:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: 게임 전체 반응시간 합계 (Integer, 밀리초 단위). 신호등 변화에 대한 반응 시간을 측정한 값
+      required:
+      - gameCode
+      - meta
+      - reactionMsSum
+      - roundCount
+      - score
+      - sessionId
+      - successCount
+      - wrongCount
+    Login:
+      type: object
+      description: |-
+        username과 password로 로그인하는 커스텀 Serializer.
+        email 필드는 사용하지 않습니다.
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - username
+    PaginatedGameListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameList'
+    PasswordChange:
+      type: object
+      properties:
+        newPassword1:
+          type: string
+          maxLength: 128
+        newPassword2:
+          type: string
+          maxLength: 128
+      required:
+      - newPassword1
+      - newPassword2
+    PasswordReset:
+      type: object
+      description: Serializer for requesting a password reset e-mail.
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    PasswordResetConfirm:
+      type: object
+      description: Serializer for confirming a password reset attempt.
+      properties:
+        newPassword1:
+          type: string
+          maxLength: 128
+        newPassword2:
+          type: string
+          maxLength: 128
+        uid:
+          type: string
+        token:
+          type: string
+      required:
+      - newPassword1
+      - newPassword2
+      - token
+      - uid
+    PatchedEmailUpdate:
+      type: object
+      description: 사용자의 email을 수정하는 Serializer.
+      properties:
+        email:
+          type: string
+          format: email
+    PatchedUserDetail:
+      type: object
+      description: UserDetailsSerializer를 custom User 모델에 맞게 재정의합니다.
+      properties:
+        username:
+          type: string
+          readOnly: true
+          description: 4자리 이상의 영문과 숫자 조합
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+          nullable: true
+    Register:
+      type: object
+      description: |-
+        username과 password만으로 회원가입을 진행하는 커스텀 Serializer.
+        email은 선택 사항입니다.
+      properties:
+        username:
+          type: string
+          description: 4자리 이상의 영문과 숫자 조합
+          maxLength: 20
+          minLength: 4
+        email:
+          type: string
+          format: email
+        password1:
+          type: string
+          writeOnly: true
+        password2:
+          type: string
+          writeOnly: true
+      required:
+      - password1
+      - password2
+      - username
+    ReportDetail:
+      type: object
+      description: 레포트 상세 정보 Serializer
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        child:
+          allOf:
+          - $ref: '#/components/schemas/Child'
+          readOnly: true
+        concentrationScore:
+          type: integer
+          readOnly: true
+          title: 집중력 점수
+          description: 아동의 집중력 점수 (0-100)
+        gameReports:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameReportDetail'
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - child
+      - concentrationScore
+      - createdAt
+      - gameReports
+      - id
+      - updatedAt
+    ReportEmail:
+      type: object
+      description: 레포트 이메일 전송 요청 Serializer
+      properties:
+        email:
+          type: string
+          format: email
+          description: 이메일 주소 (선택, 없으면 request.user.email 사용)
+    ReportPinVerification:
+      type: object
+      description: 레포트 PIN 검증 Serializer
+      properties:
+        pin:
+          type: string
+          writeOnly: true
+          description: 레포트 조회를 위한 PIN 번호 (4-6자리)
+          maxLength: 6
+          minLength: 4
+      required:
+      - pin
+    ReportStatus:
+      type: object
+      description: 레포트 상태 응답 Serializer
+      properties:
+        status:
+          type: string
+          readOnly: true
+          description: 레포트 상태
+        description:
+          type: string
+          readOnly: true
+          description: 상태 설명
+      required:
+      - description
+      - status
+    ResendEmailVerification:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    RestAuthDetail:
+      type: object
+      properties:
+        detail:
+          type: string
+          readOnly: true
+      required:
+      - detail
+    SetReportPinRequest:
+      type: object
+      properties:
+        pin:
+          type: string
+          writeOnly: true
+          description: PIN은 4-6자리 숫자여야 합니다.
+          maxLength: 6
+          minLength: 4
+      required:
+      - pin
+    SetReportPinResponse:
+      type: object
+      properties:
+        isSuccess:
+          type: boolean
+        message:
+          type: string
+      required:
+      - isSuccess
+      - message
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenVerify:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+      required:
+      - token
+    UserDetail:
+      type: object
+      description: UserDetailsSerializer를 custom User 모델에 맞게 재정의합니다.
+      properties:
+        username:
+          type: string
+          readOnly: true
+          description: 4자리 이상의 영문과 숫자 조합
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+          nullable: true
+      required:
+      - email
+      - id
+      - username
+    VerifyEmail:
+      type: object
+      properties:
+        key:
+          type: string
+          writeOnly: true
+      required:
+      - key
+  securitySchemes:
+    ReportBotAuthentication:
+      type: apiKey
+      in: header
+      name: X-BOT-TOKEN
+      description: BOT 토큰을 사용한 인증. 쿼리 파라미터 BOT_TOKEN으로도 전달 가능합니다.
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
