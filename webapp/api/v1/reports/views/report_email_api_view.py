@@ -64,6 +64,7 @@ class ReportEmailAPIView(BaseAPIView):
         send_report_email_task.delay(
             to_email=to_email,
             site_url=site_url,
+            bot_token_id=bot_token.id,
         )
 
         return Response(

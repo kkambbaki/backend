@@ -10,6 +10,8 @@ from typing import Optional
 from celery import shared_task
 from reports.services import ReportEmailService
 
+from users.models import BotToken
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,6 +28,7 @@ def send_report_email_task(
     pdf_file_path: Optional[str] = None,
     pdf_filename: str = "깜빡이 집중력 분석 리포트.pdf",
     site_name: str = "깜빡이",
+    bot_token_id: Optional[int] = None,
 ) -> dict:
     """
     PDF 리포트를 비동기로 생성하고 이메일로 전송합니다.
@@ -70,6 +73,10 @@ def send_report_email_task(
             pdf_filename=pdf_filename,
             site_name=site_name,
         )
+
+        bot_token = BotToken.objects.filter(id=bot_token_id).first()
+        if bot_token:
+            bot_token.consume()
 
         if result["success"]:
             logger.info(f"Report email sent successfully to {to_email}")

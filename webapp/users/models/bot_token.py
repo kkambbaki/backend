@@ -101,3 +101,9 @@ class BotToken(BaseModel):
             return (user, True)
         except cls.DoesNotExist:
             return (None, False)
+
+    def consume(self):
+        """
+        토큰을 사용 처리 (삭제)
+        """
+        self.delete()
