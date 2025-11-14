@@ -1,9 +1,12 @@
 from django.contrib import admin
-from django.urls import reverse
+from django.shortcuts import redirect
+from django.urls import path, reverse
 from django.utils.html import format_html
 
+from reports.admin.views import SendReportEmailView
 from reports.models import GameReport, Report
 from unfold.admin import ModelAdmin, TabularInline
+from unfold.decorators import action
 
 from common.admin.utils import (
     COLOR_GREEN,
@@ -104,6 +107,7 @@ class ReportAdmin(ModelAdmin):
     )
     autocomplete_fields = ("user", "child")
     actions = []
+    actions_detail = ["send_email_action"]
 
     fieldsets = (
         (
@@ -197,3 +201,26 @@ class ReportAdmin(ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         """삭제는 슈퍼유저만 가능"""
         return request.user.is_superuser
+
+    def get_urls(self):
+        """커스텀 URL 추가"""
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<path:object_id>/send-email/",
+                self.admin_site.admin_view(SendReportEmailView.as_view(model_admin=self)),
+                name="reports_report_send_email",
+            ),
+        ]
+        return custom_urls + urls
+
+    @action(description="이메일 전송", url_path="send-email-redirect")
+    def send_email_action(self, request, object_id):
+        """
+        이메일 전송 페이지로 리다이렉트하는 액션
+
+        Detail 페이지의 액션 버튼으로 표시되며,
+        클릭 시 커스텀 페이지로 이동합니다.
+        """
+        url = reverse("admin:reports_report_send_email", args=[object_id])
+        return redirect(url)
